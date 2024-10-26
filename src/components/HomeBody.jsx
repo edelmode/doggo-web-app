@@ -2,7 +2,7 @@ import React from 'react';
 
 const HomeBody = () => {
     return (
-        <div 
+        <div  id="home"
             className='text-black bg-cover bg-center min-h-screen flex justify-between items-center px-20 py-8'
             style={{ backgroundImage: "url('/public/bg.png')" }}
         >
@@ -19,20 +19,11 @@ const HomeBody = () => {
 
                 <div className="mt-5">
                     <button 
-                        className="flex flex-shrink-0 justify-center text-white items-center gap-2 w-[15rem] lg:h-[3.5rem] rounded-full bg-doggo md:text-xl font-bold md:leading-[100%] hover:bg-yellow hover:transition duration-300 py-4"
+                        className="flex flex-shrink-0 justify-center text-white items-center gap-2 w-[15rem] lg:h-[3.5rem] rounded-full bg-doggo md:text-xl font-bold md:leading-[100%] hover:bg-yellow hover:transition duration-300 py-4 border-4 border-white"
                     >
                         Get Started
                     </button>
                 </div>
-            </div>
-
-            {/* Right side with large image */}
-            <div className="w-5/6 h-full flex justify-center items-center">
-                <img 
-                    src="/public/dog.png" 
-                    alt="Dog illustration" 
-                    className="w-full h-[90vh] object-cover rounded-lg"
-                />
             </div>
         </div>
     );
