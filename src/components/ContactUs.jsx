@@ -1,6 +1,6 @@
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import React, { useState } from 'react';
-import Footer from './footer';
+import Footer from './Footer';
 
 
 const ContactUs = () => {
