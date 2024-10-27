@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function HomeNavbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate(); // Initialize navigate
 
+  const handleFetchingButtonClick = () => {
+    navigate("/fetching-page");  // Redirect to the Fetching page
+  };
+  
   const handleScrollTo = (id) => {
     const element = document.getElementById(id);
     if (element) {
@@ -40,7 +46,9 @@ export default function HomeNavbar() {
           </a>
         </li>
         <li>
-          <button className="text-sm font-medium text-white rounded-full bg-doggo px-3 py-2 hover:bg-yellow transition duration-300">
+          <button 
+            className="text-sm font-medium text-white rounded-full bg-doggo px-3 py-2 hover:bg-yellow transition duration-300"
+            onClick={handleFetchingButtonClick}>
             Get Started
           </button>
         </li>
@@ -75,7 +83,8 @@ export default function HomeNavbar() {
             </a>
           </li>
           <li>
-            <button className="text-sm font-medium text-white rounded-full bg-doggo px-3 py-2 hover:bg-yellow transition duration-300">
+            <button className="text-sm font-medium text-white rounded-full bg-doggo px-3 py-2 hover:bg-yellow transition duration-300"
+              onClick={handleFetchingButtonClick}>
               Get Started
             </button>
           </li>
