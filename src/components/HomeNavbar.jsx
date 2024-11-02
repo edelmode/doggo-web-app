@@ -9,6 +9,7 @@ export default function HomeNavbar() {
     navigate("/fetching-page");  // Redirect to the Fetching page
   };
   
+  
   const handleScrollTo = (id) => {
     const element = document.getElementById(id);
     if (element) {

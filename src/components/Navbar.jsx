@@ -26,6 +26,10 @@ export default function NavbarTopConfigurationPage() {
     navigate("/");  // Redirect to the Landing page
     };
 
+    const handleGalleryButtonClick = () => {
+        navigate("/gallery-page");  // Redirect to the Gallery page
+    };
+
     return (
         <nav className="w-full flex items-center justify-between px-5 sm:px-10 bg-white sm:shadow-md relative z-10">
             {/* Logo Section */}
@@ -64,7 +68,10 @@ export default function NavbarTopConfigurationPage() {
                     </button>
                 </li>
                 <li>
-                    <button className="text-md font-medium text-gray-600 hover:text-paymongo">
+                    <button 
+                        className="text-md font-medium text-gray-600 hover:text-paymongo"
+                        onClick={handleGalleryButtonClick}
+                    >
                         Gallery
                     </button>
                 </li>
