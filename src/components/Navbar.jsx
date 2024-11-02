@@ -22,10 +22,6 @@ export default function NavbarTopConfigurationPage() {
         navigate("/petcam-page");  // Redirect to the PetCam page
     };
 
-    const handleGalleryButtonClick = () => {
-        navigate("/gallery-page");  // Redirect to the Gallery page
-    };
-
     const handleLandingPageClick = () => {
     navigate("/");  // Redirect to the Landing page
     };
@@ -68,10 +64,7 @@ export default function NavbarTopConfigurationPage() {
                     </button>
                 </li>
                 <li>
-                    <button  
-                        className="text-md font-medium text-gray-600 hover:text-paymongo"
-                        onClick={handleGalleryButtonClick}
-                    >
+                    <button className="text-md font-medium text-gray-600 hover:text-paymongo">
                         Gallery
                     </button>
                 </li>
@@ -138,9 +131,7 @@ export default function NavbarTopConfigurationPage() {
                         </button>
                     </li>
                     <li>
-                        <button className="text-md font-medium"
-                            onClick={handleGalleryButtonClick}
-                        >
+                        <button className="text-md font-medium">
                             Gallery
                         </button>
                     </li>
