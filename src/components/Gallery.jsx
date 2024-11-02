@@ -16,7 +16,7 @@ const Gallery = () => {
   };
 
   return (
-    <div className="relative p-4" style={{backgroundColor: '#F4ECE1'}}>
+    <div className="relative p-5" style={{backgroundColor: '#F4ECE1'}}>
       <button
         onClick={handleButtonClick}
         className="absolute top-4 left-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-400"
