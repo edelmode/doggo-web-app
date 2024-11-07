@@ -30,6 +30,10 @@ export default function NavbarTopConfigurationPage() {
         navigate("/gallery-page");  // Redirect to the Gallery page
     };
 
+    const handleAccountButtonClick = () => {
+        navigate("/account");  // Redirect to the User Account page
+    };
+
     return (
         <nav className="w-full flex items-center justify-between px-5 sm:px-10 bg-white sm:shadow-md relative z-10">
             {/* Logo Section */}
@@ -84,7 +88,7 @@ export default function NavbarTopConfigurationPage() {
                         <div className="absolute z-100 bg-white divide-y divide-gray-100 rounded-lg shadow w-44 top-12 right-0">
                             <ul className="py-2 text-sm text-gray-600 text-md font-medium">
                                 <li>
-                                    <button onClick={(e) => { e.preventDefault(); }} className="flex px-4 py-2 hover:text-paymongo">
+                                    <button onClick={(e) => { e.preventDefault(); handleAccountButtonClick(); }} className="flex px-4 py-2 hover:text-paymongo">
                                         <User className='h-5 w-5 mr-2'/> Account
                                     </button>
                                 </li>
