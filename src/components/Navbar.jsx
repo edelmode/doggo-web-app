@@ -98,7 +98,7 @@ export default function NavbarTopConfigurationPage() {
                                     </button>
                                 </li>
                                 <li>
-                                    <button onClick={(e) => { e.preventDefault(); }} className="flex px-4 py-2 hover:text-paymongo">
+                                    <button onClick={(e) => { e.preventDefault(); handleLandingPageClick(); }} className="flex px-4 py-2 hover:text-paymongo">
                                         <LogOut className='h-5 w-5 mr-2'/> Sign out
                                     </button>
                                 </li>
