@@ -1,11 +1,126 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import SignIn from './SignIn';
+import SignUp from './SignUp';
+import ForgotPassword from './ForgotPassword';
+import VerificationCard from './VerificationCard';
+import ResetPassword from './ResetPasswordCard';
+import TermsOfUse from './TermsOfUse';
 
 const HomeBody = () => {
-    const navigate = useNavigate(); // Initialize navigate
+    const [isSignInOpen, setIsSignInOpen] = useState(false);
+    const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+    const [isForgotPassOpen, setIsForgotPassOpen] = useState(false);
+    const [isVerificationOpen, setVerificationOpen] = useState(false);
+    const [isResetPass, setResetPassOpen] = useState(false);
+    const [isTermsOpen, setTermsOpen] = useState(false);
 
-    const handleFetchingButtonClick = () => {
-      navigate("/fetching-page");  // Redirect to the Fetching page
+    const toggleVerificationModal = () => {
+        setVerificationOpen(!isVerificationOpen);
+        setIsSignInOpen(false);
+        setIsSignUpOpen(false);
+        setIsForgotPassOpen(false);
+        setResetPassOpen(false);
+        setTermsOpen(false);
+    };
+
+    const toggleResetPassModal = () => {
+        setResetPassOpen(!isResetPass);
+        setIsSignInOpen(false);
+        setIsSignUpOpen(false);
+        setIsForgotPassOpen(false);
+        setVerificationOpen(false);
+        setTermsOpen(false);
+    };
+
+    const toggleSignInModal = () => {
+        setIsSignInOpen(!isSignInOpen);
+        setIsSignUpOpen(false);
+        setIsForgotPassOpen(false);
+        setVerificationOpen(false);
+        setResetPassOpen(false);
+        setTermsOpen(false);
+    };
+
+    const toggleSignUpModal = () => {
+        setIsSignUpOpen(!isSignUpOpen);
+        setIsSignInOpen(false);
+        setIsForgotPassOpen(false);
+        setVerificationOpen(false);
+        setResetPassOpen(false);
+        setTermsOpen(false);
+    };
+
+    const toggleForgotPassModal = () => {
+        setIsForgotPassOpen(!isForgotPassOpen);
+        setIsSignInOpen(false);
+        setIsSignUpOpen(false);
+        setVerificationOpen(false);
+        setResetPassOpen(false);
+        setTermsOpen(false);
+    };
+
+    const toggleTermsModal = () => {
+        setTermsOpen(!isTermsOpen);
+        setIsForgotPassOpen(false);
+        setIsSignInOpen(false);
+        setIsSignUpOpen(false);
+        setVerificationOpen(false);
+        setResetPassOpen(false);
+    };
+
+    const openSignUpModal = () => {
+        setIsSignUpOpen(true);
+        setIsSignInOpen(false);
+        setIsForgotPassOpen(false);
+        setVerificationOpen(false);
+        setResetPassOpen(false);
+        setTermsOpen(false);
+    };
+
+    const openSignInModal = () => {
+        setIsSignInOpen(true);
+        setIsSignUpOpen(false);
+        setIsForgotPassOpen(false);
+        setVerificationOpen(false);
+        setResetPassOpen(false);
+        setTermsOpen(false);
+    };
+
+    const openForgotPassModal = () => {
+        setIsForgotPassOpen(true);
+        setIsSignInOpen(false);
+        setIsSignUpOpen(false);
+        setVerificationOpen(false);
+        setResetPassOpen(false);
+        setTermsOpen(false);
+    };
+
+    const openVerificationModal = () => {
+        setVerificationOpen(true);
+        setIsSignInOpen(false);
+        setIsSignUpOpen(false);
+        setIsForgotPassOpen(false);
+        setResetPassOpen(false);
+        setTermsOpen(false);
+    };
+
+    const openResetPassModal = () => {
+        setResetPassOpen(true);
+        setIsSignInOpen(false);
+        setIsSignUpOpen(false);
+        setIsForgotPassOpen(false);
+        setVerificationOpen(false);
+        setTermsOpen(false);
+    };
+
+    const openTermsModal = () => {
+        setTermsOpen(true);
+        setResetPassOpen(false);
+        setIsSignInOpen(false);
+        setIsSignUpOpen(false);
+        setIsForgotPassOpen(false);
+        setVerificationOpen(false);
     };
 
     return (
@@ -27,12 +142,19 @@ const HomeBody = () => {
                 <div className="mt-5">
                     <button 
                         className="flex flex-shrink-0 justify-center text-white items-center gap-2 w-[15rem] lg:h-[3.5rem] rounded-full bg-doggo md:text-xl font-bold md:leading-[100%] hover:bg-yellow hover:transition duration-300 py-4 border-4 border-white"
-                        onClick={handleFetchingButtonClick}
+                        onClick={toggleSignInModal} 
                     >
                         Get Started
                     </button>
                 </div>
             </div>
+
+            {isSignInOpen && <SignIn toggleModal={toggleSignInModal} openSignUpModal={openSignUpModal} openForgotPassModal={openForgotPassModal} />}
+            {isSignUpOpen && <SignUp toggleModal={toggleSignUpModal} openSignInModal={openSignInModal} openTermsModal={openTermsModal} />}
+            {isForgotPassOpen && <ForgotPassword toggleModal={toggleForgotPassModal} openSignInModal={openSignInModal} openVerificationModal={openVerificationModal}/>}
+            {isVerificationOpen && <VerificationCard toggleModal={toggleVerificationModal} openSignInModal={openSignInModal} openResetPassModal={openResetPassModal} />}
+            {isTermsOpen && <TermsOfUse toggleModal={toggleTermsModal} openSignUpModal={openSignUpModal}/>}
+            {isResetPass && <ResetPassword toggleModal={toggleResetPassModal} toggleSignInModal={toggleSignInModal} />}
         </div>
     );
 };

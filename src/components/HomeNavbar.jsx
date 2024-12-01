@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import SignIn from './SignIn';
+import SignUp from './SignUp';
+import ForgotPassword from './ForgotPassword';
+import VerificationCard from './VerificationCard';
+import ResetPassword from './ResetPasswordCard';
+import TermsOfUse from './TermsOfUse';
 
 export default function HomeNavbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate(); // Initialize navigate
 
-  const handleFetchingButtonClick = () => {
-    navigate("/fetching-page");  // Redirect to the Fetching page
-  };
-  
-  
   const handleScrollTo = (id) => {
     const element = document.getElementById(id);
     if (element) {
@@ -20,6 +19,121 @@ export default function HomeNavbar() {
     } else {
       console.error(`Element with id ${id} not found.`);
     }
+  };
+
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+  const [isForgotPassOpen, setIsForgotPassOpen] = useState(false);
+  const [isVerificationOpen, setVerificationOpen] = useState(false);
+  const [isResetPass, setResetPassOpen] = useState(false);
+  const [isTermsOpen, setTermsOpen] = useState(false);
+
+  const toggleVerificationModal = () => {
+      setVerificationOpen(!isVerificationOpen);
+      setIsSignInOpen(false);
+      setIsSignUpOpen(false);
+      setIsForgotPassOpen(false);
+      setResetPassOpen(false);
+      setTermsOpen(false);
+  };
+
+  const toggleResetPassModal = () => {
+      setResetPassOpen(!isResetPass);
+      setIsSignInOpen(false);
+      setIsSignUpOpen(false);
+      setIsForgotPassOpen(false);
+      setVerificationOpen(false);
+      setTermsOpen(false);
+  };
+
+  const toggleSignInModal = () => {
+      setIsSignInOpen(!isSignInOpen);
+      setIsSignUpOpen(false);
+      setIsForgotPassOpen(false);
+      setVerificationOpen(false);
+      setResetPassOpen(false);
+      setTermsOpen(false);
+  };
+
+  const toggleSignUpModal = () => {
+      setIsSignUpOpen(!isSignUpOpen);
+      setIsSignInOpen(false);
+      setIsForgotPassOpen(false);
+      setVerificationOpen(false);
+      setResetPassOpen(false);
+      setTermsOpen(false);
+  };
+
+  const toggleForgotPassModal = () => {
+      setIsForgotPassOpen(!isForgotPassOpen);
+      setIsSignInOpen(false);
+      setIsSignUpOpen(false);
+      setVerificationOpen(false);
+      setResetPassOpen(false);
+      setTermsOpen(false);
+  };
+
+  const toggleTermsModal = () => {
+      setTermsOpen(!isTermsOpen);
+      setIsForgotPassOpen(false);
+      setIsSignInOpen(false);
+      setIsSignUpOpen(false);
+      setVerificationOpen(false);
+      setResetPassOpen(false);
+  };
+
+  const openSignUpModal = () => {
+      setIsSignUpOpen(true);
+      setIsSignInOpen(false);
+      setIsForgotPassOpen(false);
+      setVerificationOpen(false);
+      setResetPassOpen(false);
+      setTermsOpen(false);
+  };
+
+  const openSignInModal = () => {
+      setIsSignInOpen(true);
+      setIsSignUpOpen(false);
+      setIsForgotPassOpen(false);
+      setVerificationOpen(false);
+      setResetPassOpen(false);
+      setTermsOpen(false);
+  };
+
+  const openForgotPassModal = () => {
+      setIsForgotPassOpen(true);
+      setIsSignInOpen(false);
+      setIsSignUpOpen(false);
+      setVerificationOpen(false);
+      setResetPassOpen(false);
+      setTermsOpen(false);
+  };
+
+  const openVerificationModal = () => {
+      setVerificationOpen(true);
+      setIsSignInOpen(false);
+      setIsSignUpOpen(false);
+      setIsForgotPassOpen(false);
+      setResetPassOpen(false);
+      setTermsOpen(false);
+  };
+
+  const openResetPassModal = () => {
+      setResetPassOpen(true);
+      setIsSignInOpen(false);
+      setIsSignUpOpen(false);
+      setIsForgotPassOpen(false);
+      setVerificationOpen(false);
+      setTermsOpen(false);
+  };
+
+  const openTermsModal = () => {
+      setTermsOpen(true);
+      setResetPassOpen(false);
+      setIsSignInOpen(false);
+      setIsSignUpOpen(false);
+      setIsForgotPassOpen(false);
+      setVerificationOpen(false);
   };
 
   return (
@@ -49,7 +163,7 @@ export default function HomeNavbar() {
         <li>
           <button 
             className="text-sm font-medium text-white rounded-full bg-doggo px-3 py-2 hover:bg-yellow transition duration-300"
-            onClick={handleFetchingButtonClick}>
+            onClick={toggleSignInModal} >
             Get Started
           </button>
         </li>
@@ -91,6 +205,13 @@ export default function HomeNavbar() {
           </li>
         </ul>
       )}
+
+            {isSignInOpen && <SignIn toggleModal={toggleSignInModal} openSignUpModal={openSignUpModal} openForgotPassModal={openForgotPassModal} />}
+            {isSignUpOpen && <SignUp toggleModal={toggleSignUpModal} openSignInModal={openSignInModal} openTermsModal={openTermsModal} />}
+            {isForgotPassOpen && <ForgotPassword toggleModal={toggleForgotPassModal} openSignInModal={openSignInModal} openVerificationModal={openVerificationModal}/>}
+            {isVerificationOpen && <VerificationCard toggleModal={toggleVerificationModal} openSignInModal={openSignInModal} openResetPassModal={openResetPassModal} />}
+            {isTermsOpen && <TermsOfUse toggleModal={toggleTermsModal} openSignUpModal={openSignUpModal}/>}
+            {isResetPass && <ResetPassword toggleModal={toggleResetPassModal} toggleSignInModal={toggleSignInModal} />}
     </nav>
   );
 }
