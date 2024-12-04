@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 
-const TeamMember = ({ name, role, image, description, onToggle, isOpen }) => {
+const TeamMember = ({ name, role, image, description, onToggle, isOpen, onImageClick, isImageEnlarged }) => {
     return (
         <div id="team" className="flex flex-col items-center m-4">
-            <img 
-                src={image} 
-                alt={`${name}'s photo`} 
-                className="w-32 h-32 rounded-full border-2 border-[#7A6251] mb-2" 
+            <img
+                src={image}
+                alt={`${name}'s photo`}
+                onClick={onImageClick}
+                className={`cursor-pointer rounded-full border-2 border-[#7A6251] mb-2 transition-transform duration-300 ${
+                    isImageEnlarged ? 'w-64 h-64' : 'w-32 h-32'
+                }`}
             />
             <h3 className="text-lg font-bold">{name}</h3>
             <p className="text-sm text-gray-600">{role}</p>
@@ -23,7 +26,7 @@ const TeamMember = ({ name, role, image, description, onToggle, isOpen }) => {
             </div>
             <button 
                 onClick={onToggle} 
-                className="mt-2 bg-[#7A6251] text-white rounded px-4 py-2 hover:bg-yellow-500 transition"
+                className="mt-2 bg-[#85522d] text-white rounded px-4 py-2 hover:bg-yellow transition"
             >
                 {isOpen ? 'Hide Description' : 'Show Description'}
             </button>
@@ -39,36 +42,41 @@ const TeamMember = ({ name, role, image, description, onToggle, isOpen }) => {
 
 const OurTeam = () => {
     const [openIndex, setOpenIndex] = useState(null);
+    const [enlargedIndex, setEnlargedIndex] = useState(null);
 
     const teamMembers = [
         {
             name: 'Carla Jeanne B. Goleña',
             role: 'Team Leader',
-            image: '/images/carla.jpg',
+            image: '/download.jpg',
             description: 'Oversees project execution and ensures team collaboration.'
         },
         {
             name: 'Noah B. Dorado',
             role: 'Computer Vision Lead',
-            image: '/images/noah.jpg',
+            image: '/download.jpg',
             description: 'Leads the development of computer vision applications.'
         },
         {
             name: 'Ahijah Reign M. Reyes',
             role: 'Hardware Lead',
-            image: '/images/reign.jpg',
+            image: '/download.jpg',
             description: 'Manages hardware design and integration.'
         },
         {
             name: 'Edel Mae T. Tapar',
             role: 'Website Development Lead',
-            image: '/images/edel.jpg',
+            image: '/download.jpg',
             description: 'Directs the design and development of websites.'
         },
     ];
 
     const handleToggle = (index) => {
         setOpenIndex(openIndex === index ? null : index);
+    };
+
+    const handleImageClick = (index) => {
+        setEnlargedIndex(enlargedIndex === index ? null : index);
     };
 
     return (
@@ -89,6 +97,8 @@ const OurTeam = () => {
                                 description={member.description} 
                                 onToggle={() => handleToggle(index)}
                                 isOpen={openIndex === index} 
+                                onImageClick={() => handleImageClick(index)}
+                                isImageEnlarged={enlargedIndex === index}
                             />
                         ))}
                     </div>
