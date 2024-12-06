@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 const TeamMember = ({ name, role, image, description, onToggle, isOpen, onImageClick, isImageEnlarged }) => {
     return (
-        <div id="team" className="flex flex-col items-center m-4">
+        <div className="flex flex-col items-center m-4">
             <img
                 src={image}
                 alt={`${name}'s photo`}
@@ -81,7 +81,8 @@ const OurTeam = () => {
 
     return (
         <div 
-            className="min-h-screen flex items-center justify-center bg-cover bg-center px-4" 
+            id = "team"
+            className=" min-h-screen flex items-center justify-center bg-cover bg-center px-4" 
             style={{ backgroundImage: 'url(/public/teamBG.png)' }} 
         >
             <div className="bg-opacity-70 bg-white py-10">
