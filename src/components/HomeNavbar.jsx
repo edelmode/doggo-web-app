@@ -10,12 +10,14 @@ export default function HomeNavbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleScrollTo = (id) => {
+    event.preventDefault();
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({
         behavior: 'smooth',
         block: 'start',
       });
+      setIsOpen(false);
     } else {
       console.error(`Element with id ${id} not found.`);
     }
@@ -199,7 +201,7 @@ export default function HomeNavbar() {
           </li>
           <li>
             <button className="text-sm font-medium text-white rounded-full bg-doggo px-3 py-2 hover:bg-yellow transition duration-300"
-              onClick={handleFetchingButtonClick}>
+              onClick={toggleSignInModal}>
               Get Started
             </button>
           </li>

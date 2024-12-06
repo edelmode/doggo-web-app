@@ -4,6 +4,7 @@ import FetchingPage from "./pages/FetchingPage"
 import PetcamPage from "./pages/PetcamPage"
 import GalleryPage from "./pages/GalleryPage"
 import UserPage from "./pages/UserPage";
+import DashboardPage from "./pages/DashboardPage";
 
 function App() {
     return (
@@ -14,6 +15,7 @@ function App() {
                 <Route path="/petcam-page" element={<PetcamPage />} />
                 <Route path="/gallery-page" element={<GalleryPage />} />
                 <Route path="/account" element={<UserPage />} />
+                <Route path="/dashboard-page" element={<DashboardPage />} />
             </Routes>
         </Router>
 

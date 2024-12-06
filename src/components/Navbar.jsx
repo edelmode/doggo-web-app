@@ -30,6 +30,10 @@ export default function NavbarTopConfigurationPage() {
         navigate("/gallery-page");  // Redirect to the Gallery page
     };
 
+    const handleDashboardButtonClick = () => {
+        navigate("/dashboard-page");  // Redirect to the Dashboard page
+    };
+
     const handleAccountButtonClick = () => {
         navigate("/account");  // Redirect to the User Account page
     };
@@ -59,7 +63,9 @@ export default function NavbarTopConfigurationPage() {
                     </button>
                 </li>
                 <li>
-                    <button className="text-md font-medium text-gray-600 hover:text-paymongo">
+                    <button className="text-md font-medium text-gray-600 hover:text-paymongo"
+                    onClick={handleDashboardButtonClick}
+                    >
                         Dashboard
                     </button>
                 </li>
@@ -130,7 +136,9 @@ export default function NavbarTopConfigurationPage() {
                         </button>
                     </li>
                     <li>
-                        <button className="text-md font-medium">
+                        <button className="text-md font-medium"
+                        onClick={handleDashboardButtonClick}
+                        >
                             Dashboard
                         </button>
                     </li>
@@ -142,7 +150,9 @@ export default function NavbarTopConfigurationPage() {
                         </button>
                     </li>
                     <li>
-                        <button className="text-md font-medium">
+                        <button className="text-md font-medium"
+                        onClick={handleGalleryButtonClick}
+                        >
                             Gallery
                         </button>
                     </li>
