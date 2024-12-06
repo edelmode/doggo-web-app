@@ -86,7 +86,7 @@ export default function SignUp({ toggleModal, openSignInModal, openTermsModal })
                         </button>
                         <div className="text-sm font-medium text-gray-700">
                             Already have an account?{' '}
-                            <a href="#" className="text-doggo-500 hover:underline" onClick={openSignInModal}>
+                            <a href="#" className="text-doggo hover:underline" onClick={openSignInModal}>
                                 Sign In
                             </a>
                         </div>
