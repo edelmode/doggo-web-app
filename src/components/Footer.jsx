@@ -36,50 +36,50 @@ const Footer = () => {
           <div className='md:ml-10'>
             <h5 className="text-lg font-bold mb-4">Follow Us</h5>
             <div className="flex justify-center md:justify-start space-x-4">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-500 text-3xl">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 hover:transition duration-300 text-3xl">
                 <i className="fab fa-facebook-f"></i>
               </a>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-500 text-3xl">
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 hover:transition duration-300 text-3xl">
                 <i className="fab fa-instagram"></i>
               </a>
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-500 text-3xl">
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 hover:transition duration-300 text-3xl">
                 <i className="fab fa-twitter"></i>
               </a>
             </div>
           </div>
           
           {/* Quick Links Section */}
-          <div>
+          <div className="mb-10">
             <h4 className="text-lg font-bold mb-2">Quick Links</h4>
             <ul className="space-y-2">
               <li className="flex items-center justify-center md:justify-start">
                 <i className="fas fa-arrow-right mr-2"></i>
-                <a href="#home" className="hover:text-gray-500">Home</a>
+                <a href="#home" className="hover:text-yellow hover:transition duration-300">Home</a>
               </li>
               <li className="flex items-center justify-center md:justify-start">
                 <i className="fas fa-arrow-right mr-2"></i>
-                <a href="#contact" className="hover:text-gray-500">Contact Us</a>
+                <a href="#contact" className="hover:text-yellow hover:transition duration-300">Contact Us</a>
               </li>
               <li className="flex items-center justify-center md:justify-start">
                 <i className="fas fa-arrow-right mr-2"></i>
-                <a href="#about" className="hover:text-gray-500">About Us</a>
+                <a href="#about" className="hover:text-yellow hover:transition duration-300">About Us</a>
               </li>
               <li className="flex items-center justify-center md:justify-start">
                 <i className="fas fa-arrow-right mr-2"></i>
-                <a href="#faqs" className="hover:text-gray-500">FAQs</a>
+                <a href="#team" className="hover:text-yellow hover:transition duration-300">Our Team</a>
               </li>
               <li className="flex items-center justify-center md:justify-start">
                 <i className="fas fa-arrow-right mr-2"></i>
-                <a href="#team" className="hover:text-gray-500">Our Team</a>
+                <a href="#faqs" className="hover:text-yellow hover:transition duration-300">FAQs</a>
               </li>
               <li className="flex items-center justify-center md:justify-start">
                 <i className="fas fa-arrow-right mr-2"></i>
                 <a
                   href="#terms"
-                  className="hover:text-gray-500"
+                  className="hover:text-yellow hover:transition duration-300"
                   onClick={togglePrivacyModal}
                 >
-                  Terms of Service
+                  Privacy Policy
                 </a>
               </li>
             </ul>
@@ -87,7 +87,14 @@ const Footer = () => {
 
           {/* Newsletter Section */}
           <div>
-            <h4 className="text-lg font-bold mb-2 mr-10">Subscribe to our Newsletter</h4>
+            <h4
+                className="text-lg font-bold mb-2 mr-10 text-white"
+                style={{
+                textShadow: '2px 2px 4px black', // Add white text border
+                }}
+            >
+                Subscribe to our Newsletter
+            </h4>
             <div className="relative flex mt-2 justify-center md:justify-start">
               <div className="flex w-full max-w-xs">
                 <div className="relative flex-grow">

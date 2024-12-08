@@ -39,7 +39,7 @@ export default function NavbarTopConfigurationPage() {
     };
 
     return (
-        <nav className="w-full flex items-center justify-between px-5 sm:px-10 bg-white sm:shadow-md relative z-10">
+        <nav className="fixed top-0 left-0 w-full flex items-center justify-between px-5 sm:px-10 bg-white shadow-md z-50">
             {/* Logo Section */}
             <div className="flex items-center h-[4rem] max-w-full">
                 <button>
@@ -56,14 +56,14 @@ export default function NavbarTopConfigurationPage() {
             <ul className="hidden sm:flex sm:flex-row lg:mr-10 items-center space-x-10">
                 <li>
                     <button  
-                        className="text-md font-medium text-gray-600 hover:text-paymongo"
+                        className="text-md font-medium text-gray-600 hover:text-yellow hover:transition duration-300" 
                         onClick={handlePetCamButtonClick}
                     >
                         Pet Cam
                     </button>
                 </li>
                 <li>
-                    <button className="text-md font-medium text-gray-600 hover:text-paymongo"
+                    <button className="text-md font-medium text-gray-600 hover:text-yellow hover:transition duration-300"
                     onClick={handleDashboardButtonClick}
                     >
                         Dashboard
@@ -71,7 +71,7 @@ export default function NavbarTopConfigurationPage() {
                 </li>
                 <li>
                     <button 
-                        className="text-md font-medium text-gray-600 hover:text-paymongo"
+                        className="text-md font-medium text-gray-600 hover:text-yellow hover:transition duration-300"
                         onClick={handleFetchingButtonClick}
                     >
                         Fetching Device
@@ -79,14 +79,14 @@ export default function NavbarTopConfigurationPage() {
                 </li>
                 <li>
                     <button 
-                        className="text-md font-medium text-gray-600 hover:text-paymongo"
+                        className="text-md font-medium text-gray-600 hover:text-yellow hover:transition duration-300"
                         onClick={handleGalleryButtonClick}
                     >
                         Gallery
                     </button>
                 </li>
                 <li className="relative">
-                    <button onClick={toggleDropdown} className="text-md font-medium text-gray-600 hover:text-paymongo">
+                    <button onClick={toggleDropdown} className="text-md font-medium text-gray-600 hover:text-yellow">
                         <CircleUser aria-hidden="true" />
                     </button>
 
@@ -94,17 +94,17 @@ export default function NavbarTopConfigurationPage() {
                         <div className="absolute z-100 bg-white divide-y divide-gray-100 rounded-lg shadow w-44 top-12 right-0">
                             <ul className="py-2 text-sm text-gray-600 text-md font-medium">
                                 <li>
-                                    <button onClick={(e) => { e.preventDefault(); handleAccountButtonClick(); }} className="flex px-4 py-2 hover:text-paymongo">
+                                    <button onClick={(e) => { e.preventDefault(); handleAccountButtonClick(); }} className="flex px-4 py-2 hover:text-yellow">
                                         <User className='h-5 w-5 mr-2'/> Account
                                     </button>
                                 </li>
                                 <li>
-                                    <button onClick={(e) => { e.preventDefault(); }} className="flex px-4 py-2 hover:text-paymongo">
+                                    <button onClick={(e) => { e.preventDefault(); }} className="flex px-4 py-2 hover:text-yellow">
                                         <Settings className='h-5 w-5 mr-2'/> Settings
                                     </button>
                                 </li>
                                 <li>
-                                    <button onClick={(e) => { e.preventDefault(); handleLandingPageClick(); }} className="flex px-4 py-2 hover:text-paymongo">
+                                    <button onClick={(e) => { e.preventDefault(); handleLandingPageClick(); }} className="flex px-4 py-2 hover:text-yellow">
                                         <LogOut className='h-5 w-5 mr-2'/> Sign out
                                     </button>
                                 </li>
@@ -116,7 +116,7 @@ export default function NavbarTopConfigurationPage() {
 
             {/* Mobile Menu Button */}
             <button
-                className="sm:hidden flex items-center p-2 rounded-md focus:outline-none"
+                className="sm:hidden flex items-center p-2 rounded-md focus:outline-none hover:text-yellow hover:transition duration-300"
                 onClick={() => setIsOpen(!isOpen)}
             >
                 {/* Hamburger Icon */}
@@ -129,28 +129,28 @@ export default function NavbarTopConfigurationPage() {
             {isOpen && (
                 <ul className="absolute top-16 left-0 w-full bg-white rounded-lg py-4 flex flex-col space-y-4 items-center sm:hidden shadow-md">
                     <li>
-                        <button className="text-md font-medium"
+                        <button className="text-md font-medium hover:text-yellow hover:transition duration-300"
                             onClick={handlePetCamButtonClick}
                         >
                             Pet Cam
                         </button>
                     </li>
                     <li>
-                        <button className="text-md font-medium"
+                        <button className="text-md font-medium hover:text-yellow hover:transition duration-300"
                         onClick={handleDashboardButtonClick}
                         >
                             Dashboard
                         </button>
                     </li>
                     <li>
-                        <button className="text-md font-medium"
+                        <button className="text-md font-medium hover:text-yellow hover:transition duration-300"
                             onClick={handleFetchingButtonClick}
                         >
                             Fetching Device
                         </button>
                     </li>
                     <li>
-                        <button className="text-md font-medium"
+                        <button className="text-md font-medium hover:text-yellow hover:transition duration-300"
                         onClick={handleGalleryButtonClick}
                         >
                             Gallery
