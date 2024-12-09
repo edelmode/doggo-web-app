@@ -16,8 +16,8 @@ export default function SignIn({ toggleModal, openSignUpModal, openForgotPassMod
 
     const navigate = useNavigate(); // Initialize navigate
 
-    const handlePetCamButtonClick = () => {
-        navigate("/petcam-page");  // Redirect to the PetCam page
+    const handleAccountButtonClick = () => {
+        navigate("/account");  // Redirect to the PetCam page
     };
 
     return (
@@ -41,7 +41,7 @@ export default function SignIn({ toggleModal, openSignUpModal, openForgotPassMod
                 </div>
                 {/* Modal body */}
                 <div className="p-4 md:p-5">
-                    <form className="space-y-4" onSubmit={handlePetCamButtonClick}>
+                    <form className="space-y-4">
                         <div>
                             <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
                                 Your email
@@ -92,7 +92,7 @@ export default function SignIn({ toggleModal, openSignUpModal, openForgotPassMod
                         <button
                             type="submit"
                             className="w-full text-white bg-doggo hover:bg-yellow focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5"   
-                            onClick={handlePetCamButtonClick}
+                            onClick={handleAccountButtonClick}
                         >
                             Sign In
                         </button>
