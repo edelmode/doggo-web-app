@@ -288,12 +288,13 @@ const Dashboard = () => {
         <div className="h-100% flex flex-col items-center justify-center bg-gray-100 p-5 ">
              {/* Logo Section */}
              <div className="flex justify-center mt-20">
-                <img src="/public/dash_title.png" alt="Logo" className="w-200 h-auto" />
+                <img src="/public/dash_title.png"
+                 alt="Logo" className="w-200 h-auto" />
             </div>
             {/* Dashboard Content */}
-                <div className="justify inline-flex width-80%">
+                <div className="justify flex flex-col md:flex-row w-full overflow-x-hidden gap-4">
                 {/* Week Dropdown */}
-                <div className="bar-container flex-grow w-3/5 max-w-[65%] mx-auto mt-8 p-4 bg-white shadow-lg rounded-lg">
+                <div className="bar-container flex-grow  max-w-full mx-auto mt-8 p-4 bg-white shadow-lg rounded-lg">
                     <h2 className="text-1xl font-bold text-center mb-4">Select Week</h2>
                     <select
                         className="block w-full p-2 mb-4 text-center border rounded-md"
@@ -310,7 +311,7 @@ const Dashboard = () => {
                     {/* Bar Graph */}
 
                     <h2 className="text-2xl font-bold text-center mb-4">Dog Emotion History</h2>
-                    <div style={{ height: '400px', width: '101%' }}>
+                    <div className="h-[400px] w-[100%] " >
                         <Bar
                             data={weekData[selectedWeek]}
                             options={{

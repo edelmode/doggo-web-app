@@ -17,8 +17,8 @@ export default function SignUp({ toggleModal, openSignInModal, openTermsModal })
         });
     };
 
-    const handlePetCamButtonClick = () => {
-        navigate("/petcam-page");  // Redirect to the PetCam page
+    const handleAccountButtonClick = () => {
+        navigate("/account");  // Redirect to the PetCam page
     };
     
     return (
@@ -80,7 +80,7 @@ export default function SignUp({ toggleModal, openSignInModal, openTermsModal })
                         <button
                             type="submit"
                             className="w-full text-white bg-doggo hover:bg-yellow focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5"
-                            onClick={handlePetCamButtonClick}
+                            onClick={handleAccountButtonClick}
                         >
                             Sign Up
                         </button>
