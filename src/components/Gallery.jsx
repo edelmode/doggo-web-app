@@ -16,16 +16,18 @@ const Gallery = () => {
   };
 
   return (
-    <div className="relative p-5" style={{backgroundColor: '#F4ECE1'}}>
+    <div className="relative p-5 mt-20">
       <button
         onClick={handleButtonClick}
-        className="absolute top-4 left-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-400"
+        className="absolute top-4 left-4 bg-doggo text-white px-4 py-2 rounded hover:bg-yellow"
       >
         Your Dog's Emotion
       </button>
 
-      {/* "DOGGO GALLERY" Text */}
-      <h1 className="text-center text-2xl font-bold mt-12">DOGGO GALLERY</h1>
+       {/* Logo Section */}
+       <div className="flex justify-center mt-20">
+                <img src="/public/gal_logo.png" alt="Logo" className="w-200 h-auto" />
+            </div>
 
       {/* Gallery Grid */}
       <div className="pt-12 grid grid-cols-2 gap-8">
@@ -43,7 +45,7 @@ const Gallery = () => {
                 video.shape === 'rectangle' ? 'w-full h-48' : 'w-full h-48'
               }`}
             >
-              <button className="text-4xl">▶</button>
+              <button className="text-4xl hover:text-yellow hover:transition duration-300">▶</button>
             </div>
 
             {/* Video Information */}

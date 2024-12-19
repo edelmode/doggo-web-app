@@ -146,19 +146,19 @@ export default function HomeNavbar() {
       </div>
 
       {/* Desktop Menu */}
-      <ul className="hidden md:flex flex-row items-center space-x-10">
+      <ul className="hidden md:flex flex-row items-center space-x-10 ">
         <li>
-          <a href="#" className="text-sm font-medium" onClick={() => handleScrollTo('home')}>
+          <a href="#" className="text-sm font-medium hover:text-yellow hover:transition duration-300" onClick={() => handleScrollTo('home')}>
             Home
           </a>
         </li>
         <li>
-          <a href="#" className="text-sm font-medium" onClick={() => handleScrollTo('about')}>
+          <a href="#" className="text-sm font-medium hover:text-yellow hover:transition duration-300" onClick={() => handleScrollTo('about')}>
             About Us
           </a>
         </li>
         <li>
-          <a href="#" className="text-sm font-medium" onClick={() => handleScrollTo('contact')}>
+          <a href="#" className="text-sm font-medium hover:text-yellow hover:transition duration-300" onClick={() => handleScrollTo('contact')}>
             Contact Us
           </a>
         </li>
@@ -173,7 +173,7 @@ export default function HomeNavbar() {
 
       {/* Mobile Menu Button */}
       <button
-        className="md:hidden flex items-center p-2 rounded-md focus:outline-none"
+        className="md:hidden flex items-center p-2 rounded-md focus:outline-none hover:text-yellow hover:transition duration-300"
         onClick={() => setIsOpen(!isOpen)}
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -185,17 +185,17 @@ export default function HomeNavbar() {
       {isOpen && (
         <ul className="absolute top-14 left-0 w-full bg-white rounded-lg py-4 flex flex-col space-y-4 items-center md:hidden">
           <li>
-            <a href="#" className="text-sm font-medium" onClick={() => handleScrollTo('home')}>
+            <a href="#" className="text-sm font-medium hover:text-yellow hover:transition duration-300" onClick={() => handleScrollTo('home')}>
               Home
             </a>
           </li>
           <li>
-            <a href="#" className="text-sm font-medium" onClick={() => handleScrollTo('about')}>
+            <a href="#" className="text-sm font-medium hover:text-yellow hover:transition duration-300" onClick={() => handleScrollTo('about')}>
               About Us
             </a>
           </li>
           <li>
-            <a href="#" className="text-sm font-medium" onClick={() => handleScrollTo('contact')}>
+            <a href="#" className="text-sm font-medium hover:text-yellow hover:transition duration-300" onClick={() => handleScrollTo('contact')}>
               Contact Us
             </a>
           </li>
