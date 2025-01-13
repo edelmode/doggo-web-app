@@ -20,7 +20,7 @@ export default function Navbar() {
     };
 
     return (
-        <nav className="fixed w-full flex items-center justify-between px-5 sm:px-20 bg-white shadow-md z-50">
+        <nav className="fixed w-full flex items-center justify-between px-5 lg:px-20 bg-white shadow-md z-50">
             {/* Logo Section */}
             <div className="flex items-center h-14 max-w-full">
                 <button onClick={() => handleNavigation("/")}>
@@ -32,7 +32,7 @@ export default function Navbar() {
             </div>
 
             {/* Desktop Menu */}
-            <ul className="hidden text-gray-600 sm:flex sm:flex-row lg:mr-10 items-center space-x-10">
+            <ul className="hidden text-gray-600 md:flex md:flex-row lg:mr-10 items-center space-x-10">
                 <li>
                     <button
                         className={`font-medium hover:text-dark-grayish-orange transition duration-300 ${
@@ -122,7 +122,7 @@ export default function Navbar() {
 
             {/* Mobile Menu Button */}
             <button
-                className="sm:hidden flex items-center p-2 rounded-md focus:outline-none hover:text-yellow transition duration-300"
+                className="md:hidden flex items-center p-2 rounded-md focus:outline-none hover:text-yellow transition duration-300"
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -132,7 +132,7 @@ export default function Navbar() {
 
             {/* Mobile Menu */}
             {isOpen && (
-                <ul className="absolute top-16 left-0 w-full bg-white rounded-lg py-4 flex flex-col space-y-4 items-center sm:hidden shadow-md">
+                <ul className="absolute top-16 left-0 w-full bg-white rounded-lg py-4 flex flex-col space-y-4 items-center md:hidden shadow-md">
                     <li>
                         <button
                             className={`font-medium hover:text-yellow transition duration-300 ${
