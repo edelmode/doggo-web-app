@@ -139,7 +139,10 @@ export default function HomeNavbar() {
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full flex items-center justify-between px-5 sm:px-10 bg-white shadow-md z-50">
+    <nav  className="fixed top-0 left-0 w-full flex items-center justify-between px-5 sm:px-10 bg-white shadow-lg z-50"
+    style={{
+      boxShadow: '0px 8px 20px rgba(139, 69, 19, .50) solid' ,
+    }}>
       <div className="flex items-center h-[3.5rem] max-w-full">
         <img src="/favicon.png" alt="Website Logo" className="w-[2.75rem] h-[2.75rem]" />
         <p className="pl-5 font-extrabold">DOGGO</p>
