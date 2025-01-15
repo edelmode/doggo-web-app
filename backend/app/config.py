@@ -7,3 +7,5 @@ class Config:
     MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD') or exit("Missing environment variable: MYSQL_PASSWORD")
     MYSQL_DATABASE = os.getenv('MYSQL_DATABASE') or exit("Missing environment variable: MYSQL_DATABASE")
     SECRET_KEY = os.getenv('SECRET_KEY') or exit("Missing environment variable: SECRET_KEY")
+    MAIL_USERNAME = os.getenv('MAIL_USERNAME') or exit("Missing environment variable: MAIL_USERNAME")
+    MAIL_PASSWORD = os.getenv('MAIL_PASSWORD') or exit("Missing environment variable: MAIL_PASSWORD")

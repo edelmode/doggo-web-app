@@ -4,14 +4,15 @@ export default function ForgotPassword({ toggleModal, openSignInModal }) {
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isSent, setIsSent] = useState(false); // New state to track if the reset link was sent
 
     useEffect(() => {
         // Disable scrolling when the modal is open
         document.body.style.overflow = "hidden";
-    
+
         return () => {
-          // Re-enable scrolling when the modal is closed
-          document.body.style.overflowY = "auto";
+            // Re-enable scrolling when the modal is closed
+            document.body.style.overflowY = "auto";
         };
     }, []);
 
@@ -25,7 +26,6 @@ export default function ForgotPassword({ toggleModal, openSignInModal }) {
 
         try {
             const response = await fetch('http://localhost:3001/api/auth/forgot-password', {
-                mode: 'no-cors',
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email }),
@@ -33,6 +33,7 @@ export default function ForgotPassword({ toggleModal, openSignInModal }) {
 
             if (response.ok) {
                 setMessage('A reset link has been sent to your email.');
+                setIsSent(true); // Mark as sent to disable the button
             } else {
                 const errorData = await response.json();
                 setMessage(errorData.message || 'Failed to send reset link. Please try again.');
@@ -79,6 +80,7 @@ export default function ForgotPassword({ toggleModal, openSignInModal }) {
                                 className="text-sm rounded-lg block w-full p-2.5 dark:bg-gray-100 border dark:border-gray-500 dark:placeholder-gray-400 dark:text-black mb-10"
                                 placeholder="name@gmail.com"
                                 required
+                                disabled={isSent} // Disable input after successful request
                             />
                         </div>
 
@@ -90,10 +92,10 @@ export default function ForgotPassword({ toggleModal, openSignInModal }) {
 
                         <button
                             type="submit"
-                            disabled={isLoading} // Disable button while loading
-                            className={`w-full px-4 py-2 rounded-lg font-medium text-white transition duration-300 ${isLoading ? 'bg-gray-400' : 'bg-dark-pastel-orange hover:bg-yellow'} focus:outline-none focus:ring-4`}
+                            disabled={isLoading || isSent} // Disable button while loading or after success
+                            className={`w-full px-4 py-2 rounded-lg font-medium text-white transition duration-300 ${isSent ? 'bg-green-500' : isLoading ? 'bg-gray-400' : 'bg-dark-pastel-orange hover:bg-yellow'} focus:outline-none focus:ring-4`}
                         >
-                            {isLoading ? 'Sending Reset Password Email...' : 'Send Reset Password Email'}
+                            {isSent ? 'Reset Link Sent' : isLoading ? 'Sending Reset Password Email...' : 'Send Reset Password Email'}
                         </button>
                         <div className="text-sm font-medium text-gray-700 dark:text-gray-700">
                             Already have an account?{' '}
