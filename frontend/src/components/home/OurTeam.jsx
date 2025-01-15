@@ -1,5 +1,9 @@
 import { useState } from "react";
 import TeamMember from './TeamMember';
+import GOLENA from '../../assets/GOLENA.jpg';
+import DORADO from '../../assets/DORADO.png';
+import REYES from '../../assets/REYES.jpg';
+import TAPAR from '../../assets/TAPAR.png';
 
 
 
@@ -11,7 +15,7 @@ const OurTeam = () => {
       {
           name: 'Carla Jeanne B. Goleña',
           role: 'Team Leader',
-          image: 'url(../../assets/GOLENA.jpg)',
+          image: GOLENA,
           description: 'Oversees project execution and ensures team collaboration.',
           facebookLink: 'https://facebook.com',
           instagramLink: 'https://instagram.com',
@@ -20,7 +24,7 @@ const OurTeam = () => {
       {
           name: 'Noah B. Dorado',
           role: 'Computer Vision Lead',
-          image: 'url(C:\Users\asus\OneDrive\Documents\GitHub\doggo\frontend\src\assets\DORADO.png)',
+          image: DORADO,
           description: 'Leads the development of computer vision applications.',
           facebookLink: 'https://facebook.com',
           instagramLink: 'https://instagram.com',
@@ -29,7 +33,7 @@ const OurTeam = () => {
       {
           name: 'Ahijah Reign M. Reyes',
           role: 'Hardware Lead',
-          image: '/REYES.jpg',
+          image: REYES,
           description: 'Manages hardware design and integration.',
           facebookLink: 'https://facebook.com',
           instagramLink: 'https://instagram.com',
@@ -38,7 +42,7 @@ const OurTeam = () => {
       {
           name: 'Edel Mae T. Tapar',
           role: 'Website Development Lead',
-          image: '/TAPAR.jpg',
+          image: TAPAR,
           description: 'Directs the design and development of websites.',
           facebookLink: 'https://facebook.com',
           instagramLink: 'https://instagram.com',

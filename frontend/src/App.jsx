@@ -6,6 +6,8 @@ import PetcamPage from "./pages/PetcamPage"
 import GalleryPage from "./pages/GalleryPage"
 import UserPage from "./pages/UserPage";
 import DashboardPage from "./pages/DashboardPage";
+import ForgotPassword from '../src/components/auth/ForgotPassword';
+import ResetPassword from '../src/components/auth/ResetPassword';
 
 function App() {
     return (
@@ -18,6 +20,8 @@ function App() {
                     <Route path="/gallery-page" element={<GalleryPage />} />
                     <Route path="/account" element={<UserPage />} />
                     <Route path="/dashboard-page" element={<DashboardPage />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
                 </Routes>
             </Router>
         </div>

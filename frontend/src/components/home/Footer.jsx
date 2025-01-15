@@ -148,7 +148,7 @@ const Footer = () => {
           {/* Newsletter Section */}
           <div>
             <h4
-              className="text-lg font-bold mb-2 text-white"
+              className="text-lg font-bold mb-2 text-white shadow-md"
               style={{
                 textShadow: '2px 2px 4px black',
               }}
@@ -173,7 +173,7 @@ const Footer = () => {
                 <button
                   type="submit"
                   isabled={!!message}
-                  className={`w-full text-white font-bold px-3 py-2 rounded-lg ${
+                  className={`w-36 text-white font-bold px-3 py-2 rounded-lg ${
                     message
                         ? 'bg-gray-400 cursor-not-allowed'
                         : 'bg-dark-pastel-orange hover:bg-dark-grayish-orange transition duration-300'

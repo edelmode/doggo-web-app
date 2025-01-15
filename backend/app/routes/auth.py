@@ -173,7 +173,7 @@ def forgot_password():
         )
 
         # Construct the reset URL
-        client_url = os.getenv('CLIENT_URL', 'http://localhost:3000')
+        client_url = os.getenv('CLIENT_URL', 'http://localhost:5173')
         reset_url = f"{client_url}/reset-password?token={reset_token}"
 
         # Define email options
@@ -218,6 +218,7 @@ def reset_password():
         # Decode the JWT token
         decoded = jwt.decode(token, secret_key, algorithms=["HS256"])
         email = decoded.get('email')
+        print(f"Decoded email: {email}")
 
         if not email:
             return jsonify({"message": "Invalid token."}), 400
@@ -228,6 +229,7 @@ def reset_password():
         # Update the user's password in the database
         connection = mysql.connection
         cursor = connection.cursor()
+        cursor.execute("USE doggo")
         sql = "UPDATE users SET password = %s WHERE email = %s"
         cursor.execute(sql, (hashed_password, email))
         connection.commit()
@@ -244,6 +246,7 @@ def reset_password():
     finally:
         if 'cursor' in locals():
             cursor.close()
+
 
 @auth_bp.route('/protected', methods=['GET'])
 @jwt_required()
