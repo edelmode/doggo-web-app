@@ -72,7 +72,7 @@ export default function ResetPassword({ toggleModal, toggleSignInModal }) {
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-landing-page-background bg-opacity-30 z-50">
             <div className="relative p-4 w-full max-w-md max-h-full bg-white rounded-lg shadow">
                 <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                     <h3 className="text-xl font-semibold text-gray-900 dark:text-black">
@@ -140,9 +140,9 @@ export default function ResetPassword({ toggleModal, toggleSignInModal }) {
                                     className="absolute inset-y-0 right-0 flex items-center pr-3"
                                 >
                                     {showConfirmPassword ? (
-                                        <EyeIcon className="h-5 w-5 text-gray-500" />
+                                        <Eye className="h-5 w-5 text-gray-500" />
                                     ) : (
-                                        <EyeOffIcon className="h-5 w-5 text-gray-500" />
+                                        <EyeClosed className="h-5 w-5 text-gray-500" />
                                     )}
                                 </button>
                             </div>
@@ -157,7 +157,7 @@ export default function ResetPassword({ toggleModal, toggleSignInModal }) {
                         <button
                             type="submit"
                             disabled={isSaving} // Disable button while saving
-                            className={`w-full px-4 py-2 rounded-lg font-medium text-white transition duration-300 ${isSaving ? 'bg-gray-400' : 'bg-doggo hover:bg-doggo'} focus:outline-none`}
+                            className={`w-full px-4 py-2 rounded-lg font-medium text-white transition duration-300 ${isSaving ? 'bg-gray-400' : 'bg-dark-grayish-orange hover:bg-dark-pastel-orange'} focus:outline-none`}
                         >
                             {isSaving ? 'Saving...' : 'Reset Password'}
                         </button>

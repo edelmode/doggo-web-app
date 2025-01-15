@@ -11,6 +11,16 @@ const Home = () => {
     const [isForgotPassOpen, setIsForgotPassOpen] = useState(false);
     const [isResetPass, setResetPassOpen] = useState(false);
     const [isTermsOpen, setTermsOpen] = useState(false);
+    const [isVerificationOpen, setVerificationOpen] = useState(false);
+
+    const toggleVerificationModal = () => {
+        setVerificationOpen(!isVerificationOpen);
+        setIsSignInOpen(false);
+        setIsSignUpOpen(false);
+        setIsForgotPassOpen(false);
+        setResetPassOpen(false);
+        setTermsOpen(false);
+    };
 
     const toggleResetPassModal = () => {
         setResetPassOpen(!isResetPass);
@@ -18,6 +28,7 @@ const Home = () => {
         setIsSignUpOpen(false);
         setIsForgotPassOpen(false);
         setTermsOpen(false);
+        setVerificationOpen(false);
     };
 
     const toggleSignInModal = () => {
@@ -26,6 +37,7 @@ const Home = () => {
         setIsForgotPassOpen(false);
         setResetPassOpen(false);
         setTermsOpen(false);
+        setVerificationOpen(false);
     };
 
     const toggleSignUpModal = () => {
@@ -34,6 +46,7 @@ const Home = () => {
         setIsForgotPassOpen(false);
         setResetPassOpen(false);
         setTermsOpen(false);
+        setVerificationOpen(false);
     };
 
     const toggleForgotPassModal = () => {
@@ -42,6 +55,7 @@ const Home = () => {
         setIsSignUpOpen(false);
         setResetPassOpen(false);
         setTermsOpen(false);
+        setVerificationOpen(false);
     };
 
     const toggleTermsModal = () => {
@@ -50,6 +64,7 @@ const Home = () => {
         setIsSignInOpen(false);
         setIsSignUpOpen(false);
         setResetPassOpen(false);
+        setVerificationOpen(false);
     };
 
     const openSignUpModal = () => {
@@ -58,6 +73,7 @@ const Home = () => {
         setIsForgotPassOpen(false);
         setResetPassOpen(false);
         setTermsOpen(false);
+        setVerificationOpen(false);
     };
 
     const openSignInModal = () => {
@@ -66,6 +82,7 @@ const Home = () => {
         setIsForgotPassOpen(false);
         setResetPassOpen(false);
         setTermsOpen(false);
+        setVerificationOpen(false);
     };
 
     const openForgotPassModal = () => {
@@ -74,6 +91,7 @@ const Home = () => {
         setIsSignUpOpen(false);
         setResetPassOpen(false);
         setTermsOpen(false);
+        setVerificationOpen(false);
     };
 
     const openResetPassModal = () => {
@@ -82,6 +100,7 @@ const Home = () => {
         setIsSignUpOpen(false);
         setIsForgotPassOpen(false);
         setTermsOpen(false);
+        setVerificationOpen(false);
     };
 
     const openTermsModal = () => {
@@ -90,6 +109,16 @@ const Home = () => {
         setIsSignInOpen(false);
         setIsSignUpOpen(false);
         setIsForgotPassOpen(false);
+        setVerificationOpen(false);
+    };
+
+    const openVerificationModal = () => {
+        setVerificationOpen(true);
+        setIsSignInOpen(false);
+        setIsSignUpOpen(false);
+        setIsForgotPassOpen(false);
+        setResetPassOpen(false);
+        setTermsOpen(false);
     };
 
     return (
@@ -119,9 +148,10 @@ const Home = () => {
 
             {isSignInOpen && <SignIn toggleModal={toggleSignInModal} openSignUpModal={openSignUpModal} openForgotPassModal={openForgotPassModal} />}
             {isSignUpOpen && <SignUp toggleModal={toggleSignUpModal} openSignInModal={openSignInModal} openTermsModal={openTermsModal} />}
-            {isForgotPassOpen && <ForgotPassword toggleModal={toggleForgotPassModal} openSignInModal={openSignInModal} openResetPassModal={openResetPassModal}/>}
+            {isForgotPassOpen && <ForgotPassword toggleModal={toggleForgotPassModal} openSignInModal={openSignInModal} openResetPassModal={openResetPassModal} openVerificationModal={openVerificationModal}/>}
             {isTermsOpen && <TermsOfUse toggleModal={toggleTermsModal} openSignUpModal={openSignUpModal}/>}
             {isResetPass && <ResetPassword toggleModal={toggleResetPassModal} toggleSignInModal={toggleSignInModal} />}
+            {isVerificationOpen && <VerificationCard toggleModal={toggleVerificationModal} openSignInModal={openSignInModal} openResetPassModal={openResetPassModal} />}
         </div>
     );
 }

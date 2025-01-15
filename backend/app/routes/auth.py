@@ -1,11 +1,12 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.extensions import mysql
+from app.extensions import mysql, mail
 from app.utils.validators import validate_email, validate_password
-import uuid
-import smtplib
-from email.mime.text import MIMEText
+import jwt
+import os
+from datetime import datetime, timedelta
+from flask_mail import Message
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
@@ -139,6 +140,112 @@ def login():
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
     finally:
         cursor.close()
+
+# Secret Key for JWT
+secret_key = os.getenv('SECRET_KEY', 'your_secret_key')
+
+@auth_bp.route('/forgot-password', methods=['POST'])
+def forgot_password():
+    data = request.get_json()
+    email = data.get('email')
+    
+    cursor = None
+    try:
+        # Use the existing mysql connection from flask-mysqldb
+        cursor = mysql.connection.cursor()
+        cursor.execute("USE doggo")  # Make sure we're using the right database
+
+        # Check if the user exists in the database
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()
+
+        if not user:
+            return jsonify({"message": "User not found with this email"}), 404
+
+        # Create a reset token
+        reset_token = jwt.encode(
+            {
+                "email": email,  # Use email from request since user is a tuple
+                "exp": datetime.utcnow() + timedelta(hours=1)
+            },
+            current_app.config['SECRET_KEY'],
+            algorithm="HS256"
+        )
+
+        # Construct the reset URL
+        client_url = os.getenv('CLIENT_URL', 'http://localhost:5173')
+        reset_url = f"{client_url}/reset-password?token={reset_token}"
+
+        # Define email options
+        msg = Message(
+            sender=current_app.config['MAIL_USERNAME'],
+            subject="Password Reset Request",
+            recipients=[email],
+            html=f"""
+                <h1>Password Reset</h1>
+                <p>Click the link below to reset your password:</p>
+                <a href="{reset_url}">Reset Password</a>
+                <p>If you did not request this, please ignore this email.</p>
+            """
+        )
+
+        # Send the email
+        mail.send(msg)
+
+        # Commit any database changes
+        mysql.connection.commit()
+
+        return jsonify({"message": "Password reset link sent to your email."}), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"message": "Error sending reset link. Please try again later."}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+
+@auth_bp.route('/reset-password', methods=['POST'])
+def reset_password():
+    data = request.get_json()
+    token = data.get('token')
+    new_password = data.get('newPassword')
+
+    if not token or not new_password:
+        return jsonify({"message": "Token and new password are required."}), 400
+
+    try:
+        # Decode the JWT token
+        decoded = jwt.decode(token, secret_key, algorithms=["HS256"])
+        email = decoded.get('email')
+        print(f"Decoded email: {email}")
+
+        if not email:
+            return jsonify({"message": "Invalid token."}), 400
+
+        # Hash the new password
+        hashed_password = generate_password_hash(new_password)
+
+        # Update the user's password in the database
+        connection = mysql.connection
+        cursor = connection.cursor()
+        cursor.execute("USE doggo")
+        sql = "UPDATE users SET password = %s WHERE email = %s"
+        cursor.execute(sql, (hashed_password, email))
+        connection.commit()
+
+        return jsonify({"message": "Password has been reset successfully."}), 200
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({"message": "Token has expired."}), 400
+    except jwt.InvalidTokenError:
+        return jsonify({"message": "Invalid token."}), 400
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"message": "An error occurred while resetting the password."}), 500
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
 
 
 @auth_bp.route('/protected', methods=['GET'])
