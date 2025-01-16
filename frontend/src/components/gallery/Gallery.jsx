@@ -17,16 +17,30 @@ const Gallery = () => {
     navigate('/dashboard-page'); // Redirect to the Dashboard page
   };
 
+  const handlePetCamButtonClick = () => {
+    navigate('/petcam-page'); // Redirect to the PetCam page
+  };
+
   return (
     <div id="home"
-    className='text-black bg-very-bright-pastel-orange bg-cover bg-center min-h-screen items-center px-20 py-8 font-montserrat'
+    className='text-black bg-very-bright-pastel-orange bg-cover bg-center min-h-screen items-center px-20 py-8 font-montserrat '
     >
+      {/* Buttons */}
+      <div className=" font-semibold text-center">
       <button
         onClick={handleDashboardButtonClick}
-        className="absolute top-4 left-4 bg-dark-grayish-orange text-white px-4 py-2 rounded hover:bg-yellow"
+        className="absolute top-4 left-4 bg-dark-grayish-orange text-white px-4 py-2 rounded hover:bg-yellow mt-20"
       >
         Your Dog's Emotion
       </button>
+
+      <button
+        onClick={handlePetCamButtonClick}
+        className="absolute top-4 right-4 bg-dark-grayish-orange text-white px-4 py-2 rounded hover:bg-yellow mt-20"
+      >
+        See Your Dog
+      </button>
+      </div>
 
       {/* Logo Section */}
       <div className="flex justify-center mt-20 ">
