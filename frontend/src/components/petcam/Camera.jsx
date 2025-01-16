@@ -143,7 +143,7 @@ export default function Camera() {
                 <div className="relative inline-block mt-6 w-full">
                     <video
                         ref={videoRef}
-                        className="transform scale-x-[-1] rounded-lg border border-gray-300 shadow-md mt-5"
+                        className="transform scale-x-[-1] rounded-lg border border-gray-300 shadow-md mt-10 justify-center"
                     ></video>
 
                     <button
@@ -166,12 +166,14 @@ export default function Camera() {
                         <Aperture className='w-4 h-4 sm:w-6 sm:h-6' />
                     </button>
                 </div>
-
-                <div className="mt-6 flex flex-col  items-center">
-                    <div className="mt-6 items-center text-center">
-                        <p>CURRENT EMOTION:</p>
+                </div>
+                
+            
+                <div className="mt-6 ">
+                    <div className="mt-6">
+                        <p >CURRENT EMOTION:</p>
                         <h2
-                            className="lg:w-[100%] w-80 h-20 text-3xl text-white bg-dark-grayish-orange focus:outline-none font-medium rounded-lg px-5 py-1"
+                            className=" w-80 h-20 text-3xl text-white bg-dark-grayish-orange focus:outline-none font-medium rounded-lg px-5 py-1"
                         >
                             No Emotion Detected
                         </h2>
@@ -180,7 +182,7 @@ export default function Camera() {
                     <div className="mt-6 text-center">
                         <h1>PLAY WITH {formData.pet_name}</h1>
                         <button
-                            className="lg:w-[100%] w-80 text-black bg-bright-neon-yellow hover:bg-dark-grayish-orange focus:ring-4
+                            className="lg:w-[100%] w-50 text-black bg-bright-neon-yellow hover:bg-dark-grayish-orange focus:ring-4
                             hover:text-white focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5"
                         >
                             Start Fetch
@@ -203,8 +205,7 @@ export default function Camera() {
                     </div>
                 </div>
 
-
             </div>
-        </div>
+        
     );
 }

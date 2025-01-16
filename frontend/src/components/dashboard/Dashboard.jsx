@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
-<<<<<<< HEAD:src/components/Dashboard.jsx
 import { SquareArrowUp, SquareArrowDown, SquareArrowRight } from 'lucide-react';
 import { Bar, Doughnut, Line } from 'react-chartjs-2'; // Import Doughnut
-=======
-import { Bar, Doughnut, Line } from 'react-chartjs-2';
->>>>>>> upstream/main:frontend/src/components/dashboard/Dashboard.jsx
 import 'chart.js/auto';
 
 const Dashboard = () => {
@@ -26,11 +22,7 @@ const Dashboard = () => {
                 {
                     label: 'Anger',
                     data: [2, 10, 2, 5, 2, 15, 4],
-<<<<<<< HEAD:src/components/Dashboard.jsx
                     backgroundColor: '#FF0000',
-=======
-                    backgroundColor: '#85522D',
->>>>>>> upstream/main:frontend/src/components/dashboard/Dashboard.jsx
                 },
                 {
                     label: 'Fear',
@@ -55,11 +47,7 @@ const Dashboard = () => {
                 {
                     label: 'Anger',
                     data: [3, 9, 4, 6, 2, 12, 5],
-<<<<<<< HEAD:src/components/Dashboard.jsx
                     backgroundColor: '#FF0000',
-=======
-                    backgroundColor: '#85522D',
->>>>>>> upstream/main:frontend/src/components/dashboard/Dashboard.jsx
                 },
                 {
                     label: 'Fear',
@@ -84,11 +72,7 @@ const Dashboard = () => {
                 {
                     label: 'Anger',
                     data: [4, 7, 5, 6, 9, 8, 3],
-<<<<<<< HEAD:src/components/Dashboard.jsx
                     backgroundColor: '#FF0000',
-=======
-                    backgroundColor: '#85522D',
->>>>>>> upstream/main:frontend/src/components/dashboard/Dashboard.jsx
                 },
                 {
                     label: 'Fear',
@@ -113,11 +97,7 @@ const Dashboard = () => {
                 {
                     label: 'Anger',
                     data: [6, 8, 7, 5, 6, 9, 4],
-<<<<<<< HEAD:src/components/Dashboard.jsx
                     backgroundColor: '#FF0000',
-=======
-                    backgroundColor: '#85522D',
->>>>>>> upstream/main:frontend/src/components/dashboard/Dashboard.jsx
                 },
                 {
                     label: 'Fear',
@@ -143,11 +123,7 @@ const Dashboard = () => {
             {
                 label: 'Anger',
                 data: [6, 8, 7, 5, 6, 9, 4],
-<<<<<<< HEAD:src/components/Dashboard.jsx
                 backgroundColor: '#FF0000',
-=======
-                backgroundColor: '#85522D',
->>>>>>> upstream/main:frontend/src/components/dashboard/Dashboard.jsx
             },
             {
                 label: 'Fear',
@@ -261,12 +237,8 @@ const Dashboard = () => {
                 position: 'bottom', 
                 maxWidth: 200, 
                 labels: {
-<<<<<<< HEAD:src/components/Dashboard.jsx
                     usePointStyle: true, // Use point style for legend items
                     padding: 20, // Adds padding around the legend items 
-=======
-                    padding: 20,
->>>>>>> upstream/main:frontend/src/components/dashboard/Dashboard.jsx
                 },
             },
             tooltip: {
@@ -331,18 +303,11 @@ const Dashboard = () => {
     };
 
     return (
-<<<<<<< HEAD:src/components/Dashboard.jsx
         <div className="h-100% flex flex-col items-center justify-center p-5 ">
              {/* Logo Section */}
              <div className="flex justify-center mt-20">
                 <img src="/public/dash_title.png"
                  alt="Logo" className="w-200 h-auto" />
-=======
-        <div className="h-100% flex flex-col items-center justify-center bg-very-bright-pastel-orange p-5 ">
-            {/* Logo Section */}
-            <div className="flex justify-center mt-20">
-                <img src="/public/logo.png" alt="Logo" className="w-25 h-20" />
->>>>>>> upstream/main:frontend/src/components/dashboard/Dashboard.jsx
             </div>
 
           {/* Emotion Summary Section */}

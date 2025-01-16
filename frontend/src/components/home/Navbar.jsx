@@ -108,20 +108,10 @@ const Navbar = () => {
   };
 
   return (
-<<<<<<< HEAD:src/components/HomeNavbar.jsx
-    <nav  className="fixed top-0 left-0 w-full flex items-center justify-between px-5 sm:px-10 bg-white shadow-lg z-50"
-    style={{
-      boxShadow: '0px 8px 20px rgba(139, 69, 19, .50) solid' ,
-    }}>
-      <div className="flex items-center h-[3.5rem] max-w-full">
-        <img src="/favicon.png" alt="Website Logo" className="w-[2.75rem] h-[2.75rem]" />
-        <p className="pl-5 font-extrabold">DOGGO</p>
-=======
     <nav className="fixed w-full flex items-center justify-between px-5 sm:px-20 bg-white shadow-md z-50">
       <div className="flex items-center h-14 max-w-full">
         <img src="/favicon.png" alt="Website Logo" className="w-11 h-11" />
         <p className="pl-5 text-3xl text-dark-pastel-orange font-extrabold">DOGGO</p>
->>>>>>> upstream/main:frontend/src/components/home/Navbar.jsx
       </div>
 
       {/* Desktop Menu */}
