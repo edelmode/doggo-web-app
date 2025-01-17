@@ -1,13 +1,6 @@
-from flask import Flask, Blueprint, jsonify, request
-from flask_mysqldb import MySQL
-from flask_cors import CORS
+from flask import Blueprint, request, jsonify, current_app
+from app.extensions import mysql
 
-# Initialize the app and MySQL
-app = Flask(__name__)
-mysql = MySQL()
-
-# Enable CORS for the entire app with methods
-CORS(app, origins=["http://localhost:5173"], methods=["GET", "POST", "PUT", "DELETE"], supports_credentials=True)
 
 # Create a Blueprint for user-related routes
 user_bp = Blueprint('user', __name__)
