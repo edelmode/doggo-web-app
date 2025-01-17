@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import dog from '../../assets/dog.jpg'
+
 
 const UserDetails = () => {
   const [userDetails, setUserDetails] = useState(null);
@@ -131,7 +133,7 @@ const UserDetails = () => {
         <section className="bg-white p-6 rounded-lg shadow-lg mb-8">
           <div className="flex items-center space-x-4">
             <img
-              src="/assets/dog.jpg"
+              src={dog}
               alt="User Profile"
               className="w-16 h-16 rounded-full"
             />

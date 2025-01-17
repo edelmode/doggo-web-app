@@ -9,3 +9,7 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY') or exit("Missing environment variable: SECRET_KEY")
     MAIL_USERNAME = os.getenv('MAIL_USERNAME') or exit("Missing environment variable: MAIL_USERNAME")
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD') or exit("Missing environment variable: MAIL_PASSWORD")
+
+    UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')  # Directory to store uploaded images
+    MAX_CONTENT_LENGTH = 2 * 1024 * 1024  # Limit file size to 2 MB
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'} 

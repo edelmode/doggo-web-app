@@ -39,8 +39,8 @@ def create_app():
     mysql.init_app(app)
 
     # Enable CORS for the whole app and the specific blueprint
-    CORS(app, origins=["http://localhost:5173"], methods=["GET", "POST", "OPTIONS"])
-    CORS(user_bp, origins=["http://localhost:5173"], methods=["GET", "POST", "OPTIONS"])  # Enable CORS for user blueprint
+    CORS(app, origins=["http://localhost:5173"], methods=["GET", "POST", "PUT", "OPTIONS"])
+    CORS(user_bp, origins=["http://localhost:5173"], methods=["GET", "POST", "PUT","OPTIONS"])  # Enable CORS for user blueprint
     CORS(auth_bp, origins=["http://localhost:5173"], methods=["GET", "POST", "OPTIONS"])  # Enable CORS for auth blueprint
     CORS(email_bp, origins=["http://localhost:5173"], methods=["GET", "POST", "OPTIONS"])  # Enable CORS for email blueprint
 
