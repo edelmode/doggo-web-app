@@ -172,7 +172,7 @@ const Footer = () => {
                 </div>
                 <button
                   type="submit"
-                  isabled={!!message}
+                  disabled={!!message}
                   className={`w-36 text-white font-bold px-3 py-2 rounded-lg ${
                     message
                         ? 'bg-gray-400 cursor-not-allowed'
