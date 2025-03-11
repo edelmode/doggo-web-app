@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, current_app
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.extensions import mysql, mail
 from app.utils.validators import validate_email, validate_password
@@ -9,6 +9,8 @@ from datetime import datetime, timedelta
 from flask_mail import Message
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
+SECRET_KEY = os.getenv("SECRET_KEY")
+REFRESH_SECRET_KEY = os.getenv("REFRESH_SECRET_KEY")
 
 @auth_bp.route('/users', methods=['GET'])
 def get_all_users():
@@ -109,40 +111,44 @@ def login():
     if not email or not password:
         return jsonify({"error": "Email and password are required."}), 400
 
+    cursor = None
     try:
         conn = mysql.connection
         cursor = conn.cursor()
         cursor.execute("USE doggo")
 
         # Retrieve user by email
-        cursor.execute("SELECT id, password FROM users WHERE email = %s", (email,))
+        cursor.execute("SELECT id, email, password FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
 
         if not user:
             return jsonify({"error": "Invalid email or password."}), 401
 
-        user_id, hashed_password = user
-
-        # Debugging log to check the stored password hash
-        print(f"Stored hash: {hashed_password}")
-        print(f"Entered password: {password}")
+        user_id, user_email, hashed_password = user
 
         # Check password
         if not check_password_hash(hashed_password, password):
             return jsonify({"error": "Invalid email or password."}), 401
 
-        # Generate access token
-        access_token = create_access_token(identity=user_id)
+        # Generate tokens
+        access_token = create_access_token(identity=str(user_id))
+        refresh_token = create_refresh_token(identity=str(user_id))
 
-        return jsonify({"access_token": access_token, "id": user_id}), 200
+        # Update refresh token and last login
+        cursor.execute("UPDATE users SET refresh_token = %s WHERE id = %s", (refresh_token, user_id))
+        conn.commit()
 
+  
+
+        return jsonify({"token": access_token, "refresh_token": refresh_token, "id": user_id }), 200
+    
     except Exception as e:
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+    
     finally:
-        cursor.close()
+        if cursor:
+            cursor.close()
 
-# Secret Key for JWT
-secret_key = os.getenv('SECRET_KEY', 'your_secret_key')
 
 @auth_bp.route('/forgot-password', methods=['POST'])
 def forgot_password():
@@ -253,3 +259,53 @@ def reset_password():
 def protected():
     current_user_id = get_jwt_identity()
     return jsonify(logged_in_as=current_user_id), 200
+
+@auth_bp.route('/refresh-token', methods=['POST'])
+def refresh_token():
+    data = request.json
+    refresh_token = data.get('refresh_token')
+    
+    if not refresh_token:
+        return jsonify({"error": "Refresh token is required."}), 401
+
+    try:
+        
+        decoded = jwt.decode(refresh_token, REFRESH_SECRET_KEY, algorithms=["HS256"])
+        user_id = decoded.get("id")
+        
+        conn = mysql.connection
+        cursor = conn.cursor()
+        cursor.execute("USE doggo")
+
+        cursor.execute("SELECT id, email FROM users WHERE id = %s AND refresh_token = %s", (user_id, refresh_token))
+        user = cursor.fetchone()
+
+        if not user:
+            return jsonify({"error": "Invalid refresh token."}), 403
+
+        new_token = create_access_token(identity=user_id)
+        return jsonify({"token": new_token}), 200
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({"error": "Refresh token has expired."}), 403
+    except jwt.InvalidTokenError:
+        return jsonify({"error": "Invalid refresh token."}), 403
+    except Exception as e:
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
+@auth_bp.route("/verify-token", methods=["GET"])
+def verify_token():
+    auth_header = request.headers.get("Authorization")
+
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return jsonify({"message": "Unauthorized: No token provided"}), 401
+
+    token = auth_header.split(" ")[1]
+
+    try:
+        decoded = jwt.decode(token, os.getenv("SECRET_KEY"), algorithms=["HS256"])
+        return jsonify({"message": "Token is valid", "user": decoded}), 200
+    except jwt.ExpiredSignatureError:
+        return jsonify({"message": "Invalid or expired token"}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({"message": "Invalid token"}), 401

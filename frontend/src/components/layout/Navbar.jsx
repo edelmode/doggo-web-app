@@ -19,16 +19,28 @@ export default function Navbar() {
         navigate(path);
     };
 
+    const handleSignOutClick = () => {
+        // Clear all auth-related items from localStorage
+        localStorage.removeItem("token");
+        localStorage.removeItem("refresh_token");
+        localStorage.removeItem("user_id");
+    
+        // Force re-render of other components listening to storage events
+        window.dispatchEvent(new Event("storage"));
+        
+        // Use replace to prevent going back to protected routes
+        navigate("/", { replace: true });
+      };
+
     return (
         <nav className="fixed w-full flex items-center justify-between px-5 lg:px-20 bg-white shadow-md z-50">
             {/* Logo Section */}
             <div className="flex items-center h-14 max-w-full">
-                <button onClick={() => handleNavigation("/")}>
                     <div className="flex items-center h-14 max-w-full">
                         <img src="/favicon.png" alt="Website Logo" className="w-11 h-11" />
                         <p className="pl-5 text-3xl text-dark-pastel-orange font-extrabold">DOGGO</p>
                     </div>
-                </button>
+                
             </div>
 
             {/* Desktop Menu */}
@@ -107,7 +119,7 @@ export default function Navbar() {
                                     <button
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            handleNavigation("/");
+                                            handleSignOutClick();
                                         }}
                                         className="flex px-4 py-2 hover:text-yellow"
                                     >
