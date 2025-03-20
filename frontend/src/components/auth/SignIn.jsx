@@ -11,6 +11,16 @@ export default function SignIn({ toggleModal, openSignUpModal, openForgotPassMod
     const [passwordVisible, setPasswordVisible] = useState(false);
 
     useEffect(() => {
+        if (error) {
+            const timer = setTimeout(() => {
+                setError('');
+            }, 3000); 
+    
+            return () => clearTimeout(timer);
+        }
+    }, [error]);
+
+    useEffect(() => {
         const savedEmail = localStorage.getItem('savedEmail');
         if (savedEmail) {
             setEmail(savedEmail);

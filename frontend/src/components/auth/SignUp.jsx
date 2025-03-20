@@ -19,6 +19,16 @@ export default function SignUp({ toggleModal, openSignInModal, openTermsModal })
     const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
+        if (errorMessage) {
+            const timer = setTimeout(() => {
+                setErrorMessage('');
+            }, 3000); 
+    
+            return () => clearTimeout(timer);
+        }
+    }, [errorMessage]);
+
+    useEffect(() => {
         document.body.style.overflow = 'hidden';
         return () => {
             document.body.style.overflowY = 'auto';

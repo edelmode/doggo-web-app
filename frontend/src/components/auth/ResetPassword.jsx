@@ -14,6 +14,16 @@ export default function ResetPassword({ toggleModal, toggleSignInModal }) {
     const token = new URLSearchParams(location.search).get('token');
 
     useEffect(() => {
+        if (isError) {
+            const timer = setTimeout(() => {
+                setIsError('');
+            }, 3000); 
+    
+            return () => clearTimeout(timer);
+        }
+    }, [isError]);
+
+    useEffect(() => {
       // Disable scrolling when the modal is open
       document.body.style.overflow = "hidden";
   

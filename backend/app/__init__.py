@@ -27,7 +27,12 @@ def create_app():
     app.config['MAIL_USE_SSL'] = False
     app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME') 
     app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')    
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')   
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+    app.config['REFRESH_SECRET_KEY'] = os.environ.get('REFRESH_SECRET_KEY') 
+    app.config['AZURE_STORAGE_ACCOUNT_NAME'] = os.environ.get('AZURE_STORAGE_ACCOUNT_NAME') 
+    app.config['AZURE_STORAGE_ACCESS_KEY'] = os.environ.get('AZURE_STORAGE_ACCESS_KEY')
+    app.config['AZURE_STORAGE_CONTAINER_NAME'] = os.environ.get('AZURE_STORAGE_CONTAINER_NAME')
+    app.config['AZURE_STORAGE_CONNECTION_STRING'] = os.environ.get('AZURE_STORAGE_CONNECTION_STRING')          
 
     # Initialize JWT
     jwt.init_app(app)
