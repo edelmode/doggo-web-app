@@ -114,18 +114,18 @@ const UserDetails = () => {
 
   const handleSave = async () => {
     const user_id = localStorage.getItem("user_id");
-
+  
     if (!user_id) {
       setError("User not logged in");
       return;
     }
-
+  
     try {
       if (selectedFile) {
         await uploadProfilePicture(user_id, selectedFile);
       }
-
-      const response = await fetch("http://localhost:3001/api/user-details?user_id=" + user_id, {
+  
+      const response = await fetch(`http://localhost:3001/api/user/user-details?user_id=${user_id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -134,23 +134,25 @@ const UserDetails = () => {
           user_id,
           ...formData,
         }),
+        mode: "cors", // Ensure CORS mode is explicitly set
       });
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const data = await response.json();
       if (data.error) {
         throw new Error(data.error);
       }
-
+  
       setUserDetails(data);
       setIsEditing(false);
     } catch (error) {
       setError(error.message);
     }
   };
+  
 
   if (loading) {
     return <div>Loading...</div>;
