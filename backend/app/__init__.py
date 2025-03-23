@@ -1,13 +1,12 @@
 from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
-from .extensions import mysql, mail 
-from .routes import auth
-from flask_jwt_extended import JWTManager
-from .routes.auth import auth_bp 
-from .routes.user_blueprint import user_bp 
-from .routes.email import email_bp  
+from .extensions import mysql, mail
+from .routes.auth import auth_bp
+from .routes.user_blueprint import user_bp
+from .routes.email import email_bp
 import os
+from flask_jwt_extended import JWTManager
 
 jwt = JWTManager()
 
@@ -27,29 +26,31 @@ def create_app():
     app.config['MAIL_USE_SSL'] = False
     app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME') 
     app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')    
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')   
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+    app.config['REFRESH_SECRET_KEY'] = os.environ.get('REFRESH_SECRET_KEY') 
+    app.config['AZURE_STORAGE_ACCOUNT_NAME'] = os.environ.get('AZURE_STORAGE_ACCOUNT_NAME') 
+    app.config['AZURE_STORAGE_ACCESS_KEY'] = os.environ.get('AZURE_STORAGE_ACCESS_KEY')
+    app.config['AZURE_STORAGE_CONTAINER_NAME'] = os.environ.get('AZURE_STORAGE_CONTAINER_NAME')
+    app.config['AZURE_STORAGE_CONNECTION_STRING'] = os.environ.get('AZURE_STORAGE_CONNECTION_STRING')          
 
     # Initialize JWT
     jwt.init_app(app)
 
-    #Initialize Mail
+    # Initialize Mail
     mail.init_app(app)
 
     # Initialize extensions
     mysql.init_app(app)
 
-    # Enable CORS for the whole app and the specific blueprint
-    CORS(app, origins=["http://localhost:5173"], methods=["GET", "POST", "PUT", "OPTIONS"])
-    CORS(user_bp, origins=["http://localhost:5173"], methods=["GET", "POST", "PUT","OPTIONS"])  # Enable CORS for user blueprint
-    CORS(auth_bp, origins=["http://localhost:5173"], methods=["GET", "POST", "OPTIONS"])  # Enable CORS for auth blueprint
-    CORS(email_bp, origins=["http://localhost:5173"], methods=["GET", "POST", "OPTIONS"])  # Enable CORS for email blueprint
+    # Enable CORS globally
+    CORS(app, resources={r"/api/*": {"origins": ["http://localhost:5173"]}})
 
     # Ensure that the connection uses the specified database
     app.config['MYSQL_DATABASE'] = 'doggo'
 
     # Register blueprints
-    app.register_blueprint(auth_bp)  # Register auth blueprint
-    app.register_blueprint(user_bp)  # Register user blueprint
-    app.register_blueprint(email_bp)  # Register email blueprint
+    app.register_blueprint(auth_bp, url_prefix="/api/auth")
+    app.register_blueprint(user_bp, url_prefix="/api/user")
+    app.register_blueprint(email_bp, url_prefix="/api/email")
 
     return app

@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
-import dog from '../../assets/dog.jpg'
-
+import dog from '../../assets/dog.jpg';
 
 const UserDetails = () => {
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [isEditing, setIsEditing] = useState(false); // To toggle between view and edit mode
+  const [isEditing, setIsEditing] = useState(false);
+  const [profilePicture, setProfilePicture] = useState(dog);
+  const [selectedFile, setSelectedFile] = useState(null);
+
   const [formData, setFormData] = useState({
     name: "",
     pet_name: "",
@@ -27,7 +29,7 @@ const UserDetails = () => {
       }
 
       try {
-        const response = await fetch(`http://localhost:3001/api/user-details?user_id=${user_id}`, {
+        const response = await fetch(`http://localhost:3001/api/user/user-details?user_id=${user_id}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -53,6 +55,11 @@ const UserDetails = () => {
           breed: data.pet_info.breed,
           age: data.pet_info.age,
         });
+
+        if (data.file_path) {
+          setProfilePicture(data.file_path);
+        }
+
         setLoading(false);
       } catch (error) {
         setError(error.message);
@@ -75,6 +82,36 @@ const UserDetails = () => {
     }));
   };
 
+  const handleFileChange = (e) => {
+    if (e.target.files.length > 0) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const uploadProfilePicture = async (userId, file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('user_id', userId);
+
+    try {
+      const response = await fetch('http://localhost:3001/api/user/upload-profile-picture', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setProfilePicture(result.file_url); // Update profile picture
+      } else {
+        throw new Error(result.error || "Failed to upload");
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      setError(error.message);
+    }
+  };
+
   const handleSave = async () => {
     const user_id = localStorage.getItem("user_id");
   
@@ -84,7 +121,11 @@ const UserDetails = () => {
     }
   
     try {
-      const response = await fetch("http://localhost:3001/api/user-details?user_id=" + user_id, {
+      if (selectedFile) {
+        await uploadProfilePicture(user_id, selectedFile);
+      }
+  
+      const response = await fetch(`http://localhost:3001/api/user/user-details?user_id=${user_id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -93,6 +134,7 @@ const UserDetails = () => {
           user_id,
           ...formData,
         }),
+        mode: "cors", // Ensure CORS mode is explicitly set
       });
   
       if (!response.ok) {
@@ -105,11 +147,12 @@ const UserDetails = () => {
       }
   
       setUserDetails(data);
-      setIsEditing(false); // Exit edit mode
+      setIsEditing(false);
     } catch (error) {
       setError(error.message);
     }
   };
+  
 
   if (loading) {
     return <div>Loading...</div>;
@@ -133,10 +176,18 @@ const UserDetails = () => {
         <section className="bg-white p-6 rounded-lg shadow-lg mb-8">
           <div className="flex items-center space-x-4">
             <img
-              src={dog}
+              src={profilePicture}
               alt="User Profile"
-              className="w-16 h-16 rounded-full"
+              className="w-16 h-16 rounded-full object-cover"
             />
+            {isEditing && (
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="mt-2"
+              />
+            )}
             <div>
               <h3 className="text-xl font-semibold">
                 {isEditing ? (
@@ -232,20 +283,6 @@ const UserDetails = () => {
                 />
               ) : (
                 <p className="text-lg">{breed}</p>
-              )}
-            </div>
-            <div className="col-span-2">
-              <p className="text-gray-600">Owner's Phone Number</p>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="contact_number"
-                  value={formData.contact_number}
-                  onChange={handleChange}
-                  className="text-lg"
-                />
-              ) : (
-                <p className="text-lg">{contact_number}</p>
               )}
             </div>
           </div>

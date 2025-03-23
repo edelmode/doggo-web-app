@@ -4,4 +4,5 @@ flask-mysqldb
 python-dotenv
 werkzeug
 Flask-JWT-Extended
-
+flask-mail
+azure-storage-blob
