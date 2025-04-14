@@ -189,22 +189,10 @@ export default function Camera() {
                 return;
             }
             
-            // Create a timeout promise
-            const timeoutPromise = new Promise((_, reject) => {
-                setTimeout(() => reject(new Error('User details fetch timed out')), 5000);
-            });
-            
             try {
-                const response = await Promise.race([
-                    fetch(`http://localhost:3001/api/user-details?user_id=${user_id}`, {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        mode: "cors",
-                    }),
-                    timeoutPromise
-                ]);
+                const response = await fetch(`http://localhost:3001/api/user/user-details?user_id=${user_id}`, {
+                    method: "GET",
+                });
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
