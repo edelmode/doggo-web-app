@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import 'chart.js/auto';
+import { Dog } from 'lucide-react';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+
+
 
 const Dashboard = () => {
     // Dummy data for 4 weeks (1 month)
@@ -10,18 +14,18 @@ const Dashboard = () => {
             datasets: [
                 {
                     label: 'Happiness',
-                    data: [10, 15, 12, 18, 16, 20, 14],
+                    data: [10, 15, 12, 18, 6, 20, 14],
                     backgroundColor: '#F1D04B',
                 },
                 {
                     label: 'Relaxed',
-                    data: [5, 3, 8, 2, 4, 3, 5],
-                    backgroundColor: '#808080',
+                    data: [5, 3, 8, 2, 14, 3, 5],
+                    backgroundColor: '#4B5563',
                 },
                 {
                     label: 'Anger',
-                    data: [2, 10, 2, 5, 2, 15, 4],
-                    backgroundColor: '#85522D',
+                    data: [2, 19, 2, 5, 2, 15, 4],
+                    backgroundColor: '#FF4B4B',
                 },
                 {
                     label: 'Fear',
@@ -41,12 +45,12 @@ const Dashboard = () => {
                 {
                     label: 'Relaxed',
                     data: [4, 2, 6, 1, 3, 2, 4],
-                    backgroundColor: '#808080',
+                    backgroundColor: '#4B5563',
                 },
                 {
                     label: 'Anger',
                     data: [3, 9, 4, 6, 2, 12, 5],
-                    backgroundColor: '#85522D',
+                    backgroundColor: '#FF4B4B',
                 },
                 {
                     label: 'Fear',
@@ -66,12 +70,12 @@ const Dashboard = () => {
                 {
                     label: 'Relaxed',
                     data: [3, 4, 5, 2, 6, 1, 4],
-                    backgroundColor: '#808080',
+                    backgroundColor: '#4B5563',
                 },
                 {
                     label: 'Anger',
                     data: [4, 7, 5, 6, 9, 8, 3],
-                    backgroundColor: '#85522D',
+                    backgroundColor: '#FF4B4B',
                 },
                 {
                     label: 'Fear',
@@ -91,12 +95,12 @@ const Dashboard = () => {
                 {
                     label: 'Relaxed',
                     data: [2, 4, 3, 5, 3, 4, 2],
-                    backgroundColor: '#808080',
+                    backgroundColor: '#4B5563',
                 },
                 {
                     label: 'Anger',
-                    data: [6, 8, 7, 5, 6, 9, 4],
-                    backgroundColor: '#85522D',
+                    data: [6, 13, 7, 5, 6, 9, 4],
+                    backgroundColor: '#FF4B4B',
                 },
                 {
                     label: 'Fear',
@@ -117,12 +121,12 @@ const Dashboard = () => {
             {
                 label: 'Relaxed',
                 data: [2, 4, 3, 5, 3, 4, 2],
-                backgroundColor: '#808080',
+                backgroundColor: '#4B5563',
             },
             {
                 label: 'Anger',
-                data: [6, 8, 7, 5, 6, 9, 4],
-                backgroundColor: '#85522D',
+                data: [6, 8, 7, 5, 6, 18, 4],
+                backgroundColor: '#FF4B4B',
             },
             {
                 label: 'Fear',
@@ -139,9 +143,15 @@ const Dashboard = () => {
         maintainAspectRatio: false,
         scales: {
             x: {
+                grid: {
+                    display: false,
+                },
                 beginAtZero: true,
             },
             y: {
+                grid: {
+                    display: false,
+                },
                 beginAtZero: true,
                 max: 24,
                 ticks: {
@@ -188,16 +198,24 @@ const Dashboard = () => {
 
     const pieOptions = {
         responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: true, 
-                position: 'bottom', 
-                maxWidth: 200, 
-                labels: {
-                    padding: 20,
-                },
+    maintainAspectRatio: false,
+    cutout: '60%', // Increases the hole in the center (makes it look more like petals)
+    elements: {
+        arc: {
+            borderWidth: 4, // Gives a soft outline
+            borderColor: '#ffffff', // White border to separate segments
+            spacing: 10, // Adds space between segments to make it look like petals
+        },
+    },
+    plugins: {
+        legend: {
+            display: true,
+            position: 'bottom',
+            labels: {
+                padding: 20,
+                color: '#444', // Soft text color
             },
+        },
             tooltip: {
                 callbacks: {
                     label: (tooltipItem) => {
@@ -207,9 +225,62 @@ const Dashboard = () => {
                     },
                 },
             },
+            centerText: {
+                display: true,
+                text: pieData.labels[0], // Or any dynamic text you'd like
+              },
         },
     };
 
+    const centerTextPlugin = {
+        id: 'centerText',
+        beforeDraw(chart, args, options) {
+            if (options.display && options.text) {
+                const { width } = chart;
+                const { height } = chart;
+                const ctx = chart.ctx;
+          
+                ctx.restore();
+                
+                // Set color dynamically based on the emotion
+                let color;
+                switch (options.text) {
+                    case 'Happiness':
+                        color = '#F1D04B';  // Yellow
+                        break;
+                    case 'Anger':
+                        color = '#FF4B4B';  // Red
+                        break;
+                    case 'Relaxed':
+                        color = '#4B5563';  // Gray
+                        break;
+                    case 'Fear':
+                        color = '#000000';  // Black
+                        break;
+                    default:
+                        color = '#FFC702';  // Default color
+                        break;
+                }
+    
+                const fontSize = options.fontSize || 30;
+                ctx.font = `${fontSize}px Akronim`;  // You can adjust the font family here
+                ctx.fillStyle = color;  // Apply the color dynamically
+                ctx.textBaseline = 'middle';
+                
+                const text = options.text;
+                const textX = Math.round((width - ctx.measureText(text).width) / 2);
+                const textY = height / 2;
+          
+                ctx.fillText(text, textX, textY);
+                ctx.save();
+                
+            }
+        }
+    };
+    
+
+      ChartJS.register(ArcElement, Tooltip, Legend, centerTextPlugin);
+      
     // Prepare data for the line graph (Monthly Emotions)
     const getMonthlyEmotionData = () => {
         const monthlySums = {};
@@ -224,16 +295,23 @@ const Dashboard = () => {
                 });
             });
         });
+        
 
         return {
-            labels: Array.from({ length: 5 }, (_, i) => `Week ${i + 1}`), // Days of the month
-            datasets: Object.entries(monthlySums).map(([emotion, values], index) => ({
-                label: emotion,
-                data: values,
-                borderColor: weekData[0].datasets[index]?.backgroundColor || '#000',
-                fill: false,
-                tension: 0.2,
-            })),
+            labels: Array.from({ length: 5 }, (_, i) => `Week ${i + 1}`),
+            datasets: Object.entries(monthlySums).map(([emotion, values], index) => {
+                const baseColor = weekData[0].datasets[index]?.backgroundColor || '#000';
+                return {
+                    label: emotion,
+                    data: values,
+                    borderColor: baseColor,
+                    backgroundColor: `${baseColor}33`, // semi-transparent for mountain effect
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                };
+            }),
         };
     };
 
@@ -246,30 +324,82 @@ const Dashboard = () => {
             legend: {
                 display: true,
                 position: 'top',
-                padding: 20,
+                labels: {
+                    boxWidth: 12,
+                    padding: 15,
+                },
             },
         },
         scales: {
             x: {
-                beginAtZero: true,
+                grid: {
+                    display: false,
+                    drawBorder: false,
+                },
+                ticks: {
+                    color: '#555',
+                    font: {
+                        weight: '500',
+                    },
+                },
             },
             y: {
-                beginAtZero: true,
+                grid: {
+                    display: false,
+                    drawBorder: false,
+                },
+                ticks: {
+                    color: '#555',
+                    font: {
+                        weight: '500',
+                    },
+                },
+            },
+        },
+        elements: {
+            line: {
+                borderWidth: 3,
+            },
+            point: {
+                radius: 3,
+                hoverRadius: 5,
             },
         },
     };
+    
 
     return (
-        <div className="h-100% flex flex-col items-center justify-center bg-very-bright-pastel-orange p-5 ">
+        <div className="h-full flex flex-col items-center justify-center bg-very-bright-pastel-orange p-5">
             {/* Logo Section */}
             <div className="flex justify-center mt-20">
-                <img src="/public/logo.png" alt="Logo" className="w-25 h-20" />
+                <img src="/public/logo.png" alt="Logo" className="w-1/4 h-auto sm:w-1/6 md:w-1/8 lg:w-1/10" />
             </div>
+            
+            {/* Custom Legend */}
+            <div className="flex flex-wrap justify-center items-center gap-4 mt-6">
+                <div className="flex items-center gap-2">
+                    <Dog color="#F1D04B" size={20} />
+                    <span className="text-sm text-yellow-500">Happiness</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Dog color="#FF4B4B" size={20} />
+                    <span className="text-sm text-red-500">Anger</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Dog color="#4B5563" size={20} />
+                    <span className="text-sm text-gray-700">Relaxed</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Dog color="#000000" size={20} />
+                    <span className="text-sm text-black-700">Fear</span>
+                </div>
+            </div>
+    
             {/* Dashboard Content */}
-                <div className="justify flex flex-col md:flex-row w-[80%] overflow-x-hidden gap-7">
+            <div className="flex flex-col md:flex-row w-full gap-7 mt-8">
                 {/* Week Dropdown */}
-                <div className="bar-container flex-grow  max-w-full mx-auto mt-8 p-4 bg-white shadow-lg rounded-lg">
-                    <h2 className="text-1xl font-bold text-center mb-4">Select Week</h2>
+                <div className="bar-container flex-grow max-w-full mx-auto p-4 bg-white shadow-lg rounded-lg">
+                    <h2 className="text-xl font-bold text-center mb-4">Select Week</h2>
                     <select
                         className="block w-full p-2 mb-4 text-center border rounded-md"
                         value={selectedWeek}
@@ -281,15 +411,19 @@ const Dashboard = () => {
                         <option value={3}>Week 4 (Day 22 to Day 28)</option>
                         <option value={4}>Week 5 (Day 29 to Day 31)</option>
                     </select>
-
+    
                     {/* Bar Graph */}
-
                     <h2 className="text-2xl font-bold text-center mb-4">Dog Emotion History</h2>
-                    <div className="h-[400px] w-[100%] " >
+                    <div className="h-[400px] w-full">
                         <Bar
                             data={weekData[selectedWeek]}
                             options={{
                                 ...options,
+                                elements: {
+                                    bar: {
+                                        borderRadius: 5, // Adjust this value for more or less rounding
+                                    },
+                                },
                                 onClick: (_, elements) => {
                                     if (elements.length > 0) {
                                         const clickedIndex = elements[0].index;
@@ -299,31 +433,34 @@ const Dashboard = () => {
                             }}
                         />
                     </div>
-                    
+    
                     <p className="text-center text-gray-500 mt-2">
                         Click a bar to view the top 3 emotions for that day.
                     </p>
                 </div>
-                
+    
                 {/* Pie Chart */}
-                <div className="w-full max-w-md mx-auto mt-8 p-4 bg-white shadow-lg rounded-lg">
+                <div className="w-full max-w-md mx-auto p-4 bg-white shadow-lg rounded-lg">
                     <h2 className="text-2xl font-bold text-center mb-7 mt-7">Top 3 Emotions</h2>
+                    <p className="text-center text-sm mb-5">
+                        <span className="font-semibold">{weekData[selectedWeek].labels[selectedDay]}</span>
+                    </p>
                     <div style={{ height: '400px', width: '100%' }}>
                         <Doughnut data={pieData} options={pieOptions} />
                     </div>
                 </div>
             </div>
-
-             {/* Line Graph */}
-             <div className="w-full max-w-4xl mx-auto mt-8 p-4 bg-white shadow-lg rounded-lg">
+    
+            {/* Line Graph */}
+            <div className="w-full max-w-4xl mx-auto mt-8 p-4 bg-white shadow-lg rounded-lg">
                 <h2 className="text-2xl font-bold text-center mb-4">Top Emotions Over the Month</h2>
                 <div style={{ height: '400px', width: '100%' }}>
                     <Line data={lineData} options={lineOptions} />
                 </div>
             </div>
         </div>
-
     );
+    
 };
 
 export default Dashboard;

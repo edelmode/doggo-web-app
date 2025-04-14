@@ -184,6 +184,43 @@ export default function Navbar() {
                         >
                             Gallery
                         </button>
+                        
+                    
+                    </li>
+                    <hr className="border-t border-black w-3/4" />
+                    <li>
+                        <button
+                            className={`font-medium hover:text-yellow transition duration-300 ${
+                                isActive("/gallery-page") ? "text-black font-semibold" : ""
+                            }`}
+                            onClick={() => handleNavigation("/gallery-page")}
+                        >
+                            My Account
+                        </button>
+                    
+                    </li>
+                    <li>
+                        <button
+                            className={`font-medium hover:text-yellow transition duration-300 ${
+                                isActive("/gallery-page") ? "text-black font-semibold" : ""
+                            }`}
+                            onClick={() => handleNavigation("/gallery-page")}
+                        >
+                            Settings
+                        </button>
+                    
+                    </li>
+                    <li>
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleSignOutClick();
+                            }}
+                            className="flex px-4 py-2 text-red-600 hover:text-yellow"
+                        >
+                            Sign Out
+                        </button>
+                    
                     </li>
                 </ul>
             )}
