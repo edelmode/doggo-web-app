@@ -19,11 +19,11 @@ const Gallery = () => {
 
   return (
     <div id="home"
-    className='text-black bg-very-bright-pastel-orange bg-cover bg-center min-h-screen items-center px-20 py-8 font-montserrat'
+    className='text-black  bg-very-bright-pastel-orange bg-cover bg-center min-h-screen items-center px-20 py-8 font-montserrat'
     >
       <button
         onClick={handleDashboardButtonClick}
-        className="absolute top-4 left-4 bg-dark-grayish-orange text-white px-4 py-2 rounded hover:bg-yellow"
+        className="absolute top-20 left-4 bg-dark-grayish-orange text-white px-4 py-2 rounded hover:bg-yellow"
       >
         Your Dog's Emotion
       </button>
