@@ -24,7 +24,7 @@ function App() {
     
         try {
           const response = await fetch("http://localhost:3001/api/auth/verify-token", {
-            method: "POST",
+            method: "GET",
             headers: { Authorization: `Bearer ${token}` },
           });
     
@@ -40,13 +40,11 @@ function App() {
           }
         } catch (error) {
           console.error("Token verification failed:", error);
-          // Prevents unnecessary logout on network errors
-          setIsAuthenticated(true);
         }
       };
     
       verifyToken();
-    }, []);
+    }, []); 
     
     return (
         <div className='font-montserrat'>
