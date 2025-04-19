@@ -107,9 +107,6 @@ export default function Navbar() {
                                 </li>
                                 <li>
                                     <button
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                        }}
                                         className="flex px-4 py-2 hover:text-yellow"
                                     >
                                         <Settings className="h-5 w-5 mr-2" /> Settings
@@ -204,7 +201,6 @@ export default function Navbar() {
                             className={`font-medium hover:text-yellow transition duration-300 ${
                                 isActive("/gallery-page") ? "text-black font-semibold" : ""
                             }`}
-                            onClick={() => handleNavigation("/settings")}
                         >
                             Settings
                         </button>

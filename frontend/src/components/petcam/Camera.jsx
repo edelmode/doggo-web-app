@@ -18,11 +18,16 @@ export default function Camera() {
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+    const [savedPhotoUrl, setSavedPhotoUrl] = useState(null);
+    const [isSavingVideo, setIsSavingVideo] = useState(false);
+    const [savedVideoUrl, setSavedVideoUrl] = useState(null);
+    const [stream, setStream] = useState(null); // Added state to store the media stream
 
     const handleMicToggle = () => {
         console.log('Mic toggled!');
         // Optional: Add speech-to-text logic or mic permissions here
-      };
+    };
 
     const getVideo = async () => {
         // Create a timeout promise that rejects after 10 seconds
@@ -35,6 +40,7 @@ export default function Camera() {
             const stream = await Promise.race([
                 navigator.mediaDevices.getUserMedia({
                     video: { width: 1080, height: 580 },
+                    audio: true, // Enable audio for recordings
                 }),
                 timeoutPromise
             ]);
@@ -42,8 +48,12 @@ export default function Camera() {
             let video = videoRef.current;
             if (!video) return; // Guard against component unmount
 
+            // Set the stream as the video source
             video.srcObject = stream;
-            video.play();
+            video.play(); // Make sure video starts playing
+
+            // Store the stream in state for later use
+            setStream(stream);
 
             const videoTrack = stream.getVideoTracks()[0];
             setTrack(videoTrack);
@@ -102,10 +112,6 @@ export default function Camera() {
 
         let ctx = photo.getContext('2d');
 
-        // Flip the canvas to match the flipped video
-        ctx.translate(width, 0);
-        ctx.scale(-1, 1);
-
         ctx.drawImage(video, 0, 0, width, height);
         setHasPhoto(true);
     };
@@ -114,27 +120,82 @@ export default function Camera() {
         let photo = photoRef.current;
         let ctx = photo.getContext('2d');
         setHasPhoto(false);
+        setSavedPhotoUrl(null);
 
         ctx.clearRect(0, 0, photo.width, photo.height);
     };
 
+    const savePhotoToAzure = async () => {
+        if (!hasPhoto) return;
+        
+        setIsSaving(true);
+        try {
+            // Get the canvas data
+            const photo = photoRef.current;
+            const photoData = photo.toDataURL('image/jpeg');
+            
+            // Get user ID from local storage
+            const user_id = localStorage.getItem("user_id");
+            if (!user_id) {
+                throw new Error("User not logged in");
+            }
+            
+            // Prepare data for the server
+            const data = {
+                user_id: user_id,
+                photo_data: photoData,
+                pet_name: formData.pet_name || "pet",
+                emotion: emotion
+            };
+            
+            // Send to Flask backend
+            const response = await fetch('http://localhost:3001/api/gallery/save-photo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            
+            if (result.error) {
+                throw new Error(result.error);
+            }
+            
+            // Save the URL to state
+            setSavedPhotoUrl(result.photo_url);
+        } catch (err) {
+            console.error('Error saving photo:', err);
+            setError(`Failed to save photo: ${err.message}`);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     const startRecording = () => {
         try {
-            const stream = videoRef.current.srcObject;
-            const recorder = new MediaRecorder(stream);
-
+            if (!stream) {
+                throw new Error('No media stream available');
+            }
+            
+            const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+            
+            chunks.current = []; // Reset chunks
+            
             recorder.ondataavailable = (event) => {
-                chunks.current.push(event.data);
+                if (event.data.size > 0) {
+                    chunks.current.push(event.data);
+                }
             };
 
-            recorder.onstop = () => {
-                const blob = new Blob(chunks.current, { type: 'video/mp4' });
-                chunks.current = [];
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'recorded-video.mp4';
-                a.click();
+            recorder.onstop = async () => {
+                // Instead of downloading, we'll upload to Azure
+                await saveRecordingToAzure();
             };
 
             recorder.start();
@@ -159,6 +220,50 @@ export default function Camera() {
         }
     };
 
+    const saveRecordingToAzure = async () => {
+        setIsSavingVideo(true);
+        try {
+            // Get user ID from local storage
+            const user_id = localStorage.getItem("user_id");
+            if (!user_id) {
+                throw new Error("User not logged in");
+            }
+
+            // Create FormData to send video file
+            const formData = new FormData();
+            const blob = new Blob(chunks.current, { type: 'video/webm' });
+            formData.append('video', blob, `pet_video_${Date.now()}.webm`);
+            formData.append('user_id', user_id);
+            formData.append('pet_name', formData.pet_name || "pet");
+            
+            // Send to Flask backend
+            const response = await fetch('http://localhost:3001/api/gallery/save-video', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            
+            if (result.error) {
+                throw new Error(result.error);
+            }
+            
+            // Save the URL to state
+            setSavedVideoUrl(result.video_url);
+            alert('Video saved successfully! Check your gallery to view it.');
+        } catch (err) {
+            console.error('Error saving video:', err);
+            setError(`Failed to save video: ${err.message}`);
+        } finally {
+            setIsSavingVideo(false);
+        }
+    };
+
+
     const detectEmotion = () => {
         // Simulating emotion detection
         const emotions = ['Happy', 'Sad', 'Surprised', 'Angry', 'No Emotion Detected'];
@@ -178,8 +283,9 @@ export default function Camera() {
         return () => {
             clearInterval(emotionInterval);
             // Clean up any tracks when component unmounts
-            if (track) {
-                track.stop();
+            if (stream) {
+                const tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
             }
         };
     }, []);
@@ -285,112 +391,131 @@ export default function Camera() {
                     
                     <div className="relative w-full max-w-4xl aspect-video mx-auto mt-10 rounded-lg overflow-hidden shadow-md border border-gray-300">
 
-                    <video
-                        ref={videoRef}
-                        className="w-full h-full object-cover transform scale-x-[-1] rounded-lg border border-gray-300 "
-                    ></video>
+                        <video
+                            ref={videoRef}
+                            className="w-full h-full object-cover transform scale-x-[-1] rounded-lg border border-gray-300"
+                            autoPlay
+                            playsInline
+                            muted
+                        ></video>
 
-                    <button
-                        onClick={toggleFullScreen}
-                        className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
-                        disabled={loading || error}
-                    >
-                         {isFullScreen ? (
-                            <Minimize2 className="w-4 h-4 sm:w-6 sm:h-6" />
-                        ) : (
-                            <Maximize2 className="w-4 h-4 sm:w-6 sm:h-6" />
-                        )}
-                    </button>
-                
-                    <button
-                        onClick={() => handleZoom('in')}
-                        className="absolute bottom-10 sm:bottom-28 right-2 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
-                        disabled={loading || error || !track}
-                    >
-                        <ZoomIn className='w-4 h-4 sm:w-6 sm:h-6' />
-                    </button>
-                    <button
-                        onClick={() => handleZoom('out')}
-                        className="absolute bottom-2 sm:bottom-12 right-2 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
-                        disabled={loading || error || !track}
-                    >
-                        <ZoomOut className='w-4 h-4 sm:w-6 sm:h-6' />
-                    </button>
-
-                    {!isRecording ? (
                         <button
-                            onClick={startRecording}
-                            className="absolute bottom-2 sm:bottom-10 left-2 sm:left-4 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
+                            onClick={toggleFullScreen}
+                            className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
+                            disabled={loading || error}
+                        >
+                            {isFullScreen ? (
+                                <Minimize2 className="w-4 h-4 sm:w-6 sm:h-6" />
+                            ) : (
+                                <Maximize2 className="w-4 h-4 sm:w-6 sm:h-6" />
+                            )}
+                        </button>
+                    
+                        <button
+                            onClick={() => handleZoom('in')}
+                            className="absolute bottom-10 sm:bottom-28 right-2 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
                             disabled={loading || error || !track}
                         >
-                            <Video className="w-4 h-4 sm:w-6 sm:h-6" />
+                            <ZoomIn className='w-4 h-4 sm:w-6 sm:h-6' />
                         </button>
-                    ) : (
+                        
                         <button
-                            onClick={stopRecording}
-                            className="absolute bottom-10 left-4 bg-red-600 text-white hover:bg-red-800 focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
+                            onClick={() => handleZoom('out')}
+                            className="absolute bottom-2 sm:bottom-12 right-2 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
+                            disabled={loading || error || !track}
                         >
-                            <StopCircle className="w-4 h-4 sm:w-6 sm:h-6" />
+                            <ZoomOut className='w-4 h-4 sm:w-6 sm:h-6' />
                         </button>
-                    )}
 
-                    <button
-                        onClick={takePhoto}
-                        className="absolute bottom-2 sm:bottom-10 left-10 sm:left-20 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
-                        disabled={loading || error || !track}
-                    >
-                        <Aperture className='w-4 h-4 sm:w-6 sm:h-6' />
-                    </button>
+                        {!isRecording ? (
+                            <button
+                                onClick={startRecording}
+                                className="absolute bottom-2 sm:bottom-10 left-2 sm:left-4 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
+                                disabled={loading || error || !stream || isSavingVideo}
+                            >
+                                <Video className="w-4 h-4 sm:w-6 sm:h-6" />
+                            </button>
+                        ) : (
+                            <button
+                                onClick={stopRecording}
+                                className="absolute bottom-2 sm:bottom-10 left-2 sm:left-4 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
+                                disabled={isSavingVideo}
+                            >
+                                <StopCircle className="w-4 h-4 sm:w-6 sm:h-6" />
+                            </button>
+                        )}
+
+                        {isSavingVideo && (
+                            <div className="absolute bottom-20 left-16 ml-16 text-dark-pastel-orange font-medium">
+                                Saving video...
+                            </div>
+                        )}
+
+                        <button
+                            onClick={takePhoto}
+                            className="absolute bottom-2 sm:bottom-10 left-10 sm:left-20 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
+                            disabled={loading || error || !track}
+                        >
+                            <Aperture className='w-4 h-4 sm:w-6 sm:h-6' />
+                        </button>
                     </div>
 
                     <div className="mt-5 text-center">
-                <h1>
-                    Play with <b>{formData.pet_name || "your pet"} </b>
-                </h1>
+                        <h1>
+                            Play with <b>{formData.pet_name || "your pet"} </b>
+                        </h1>
 
-                <div className="mt-3 flex justify-center items-center flex-wrap gap-3 sm:gap-5">
-                    {/* Start Fetch Button */}
-                    <button
-                    className="w-64 sm:w-80 text-black bg-bright-neon-yellow hover:bg-dark-grayish-orange focus:ring-4 hover:text-white focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5"
-                    disabled={loading || error}
-                    >
-                    Start Fetch
-                    </button>
+                        <div className="mt-3 flex justify-center items-center flex-wrap gap-3 sm:gap-5">
+                            {/* Start Fetch Button */}
+                            <button
+                            className="w-64 sm:w-80 text-black bg-bright-neon-yellow hover:bg-dark-grayish-orange focus:ring-4 hover:text-white focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5"
+                            disabled={loading || error}
+                            >
+                            Start Fetch
+                            </button>
 
-                    {/* Mic Button */}
-                    <button
-                    onClick={handleMicToggle}
-                    className="bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-3 shadow-lg"
-                    disabled={loading || error}
-                    >
-                    <Mic className="w-4 h-4 sm:w-6 sm:h-6" />
-                    </button>
-                </div>
-                </div>
+                            {/* Mic Button */}
+                            <button
+                            onClick={handleMicToggle}
+                            className="bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-3 shadow-lg"
+                            disabled={loading || error}
+                            >
+                            <Mic className="w-4 h-4 sm:w-6 sm:h-6" />
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 
-
                 <div className="mt-10 flex flex-col items-center">
-                <h1 className="font-semibold text-center mt-20 mb-5">
-                    CURRENT EMOTION:  
-                    <p className="w-60 sm:w-72 md:w-80 h-20 text-2xl sm:text-3xl text-white bg-dark-grayish-orange focus:outline-none font-bold rounded-lg px-3 py-3 text-center">
-                    {error ? "Not Available" : emotion}
-                    </p>
-                </h1>
+                    <h1 className="font-semibold text-center mt-20 mb-5">
+                        CURRENT EMOTION:  
+                        <p className="w-60 sm:w-72 md:w-80 h-20 text-2xl sm:text-3xl text-white bg-dark-grayish-orange focus:outline-none font-bold rounded-lg px-3 py-3 text-center">
+                        {error ? "Not Available" : emotion}
+                        </p>
+                    </h1>
                 
-                <div className="mt-6 bg-dark-grayish-orange w-full max-w-xs sm:max-w-sm md:max-w-md rounded-lg p-4">
+                    <div className="mt-6 bg-dark-grayish-orange w-full max-w-xs sm:max-w-sm md:max-w-md rounded-lg p-4">
                 <p className="text-white font-semibold text-base sm:text-lg mb-2 break-words">ScreenShot:</p>
                     <div className={`result ${hasPhoto ? 'hasPhoto' : ''}`}>
                     <canvas className="mt-5 ml-2" ref={photoRef}></canvas>
 
                     {hasPhoto && (
-                        <button
-                        onClick={closePhoto}
-                        className="lg:w-full w-72 sm:w-80 text-white bg-dark-pastel-orange hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-3"
-                        >
-                        Close
-                        </button>
+                                <div className="flex flex-col gap-2 mt-2">
+                                    <button
+                                        onClick={savePhotoToAzure}
+                                        className="w-full text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                                        disabled={isSaving || savedPhotoUrl}
+                                    >
+                                        {isSaving ? 'Saving...' : savedPhotoUrl ? 'Saved!' : 'Save Photo'}
+                                    </button>
+                                    <button
+                                        onClick={closePhoto}
+                                        className="w-full text-white bg-dark-pastel-orange hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                                    >
+                                        Close
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </div>
