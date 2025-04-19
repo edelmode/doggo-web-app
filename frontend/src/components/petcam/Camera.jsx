@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Aperture, ZoomIn, ZoomOut, Video, StopCircle, Maximize2, Minimize2 } from 'lucide-react';
+import { Aperture, ZoomIn, ZoomOut, Video, StopCircle, Maximize2, Minimize2, Mic } from 'lucide-react';
 
 export default function Camera() {
     const videoRef = useRef(null);
@@ -18,6 +18,11 @@ export default function Camera() {
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    const handleMicToggle = () => {
+        console.log('Mic toggled!');
+        // Optional: Add speech-to-text logic or mic permissions here
+      };
 
     const getVideo = async () => {
         // Create a timeout promise that rejects after 10 seconds
@@ -278,14 +283,16 @@ export default function Camera() {
                         </div>
                     )}
                     
+                    <div className="relative w-full max-w-4xl aspect-video mx-auto mt-10 rounded-lg overflow-hidden shadow-md border border-gray-300">
+
                     <video
                         ref={videoRef}
-                        className="transform scale-x-[-1] rounded-lg border border-gray-300 shadow-md mt-10 justify-center"
+                        className="w-full h-full object-cover transform scale-x-[-1] rounded-lg border border-gray-300 "
                     ></video>
 
                     <button
                         onClick={toggleFullScreen}
-                        className="absolute top-2 sm:top-12 right-2 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-3 shadow-lg"
+                        className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
                         disabled={loading || error}
                     >
                          {isFullScreen ? (
@@ -297,14 +304,14 @@ export default function Camera() {
                 
                     <button
                         onClick={() => handleZoom('in')}
-                        className="absolute bottom-32 sm:bottom-40 right-2 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-3 shadow-lg"
+                        className="absolute bottom-10 sm:bottom-28 right-2 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
                         disabled={loading || error || !track}
                     >
                         <ZoomIn className='w-4 h-4 sm:w-6 sm:h-6' />
                     </button>
                     <button
                         onClick={() => handleZoom('out')}
-                        className="absolute bottom-20 sm:bottom-24 right-2 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-3 shadow-lg"
+                        className="absolute bottom-2 sm:bottom-12 right-2 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
                         disabled={loading || error || !track}
                     >
                         <ZoomOut className='w-4 h-4 sm:w-6 sm:h-6' />
@@ -313,7 +320,7 @@ export default function Camera() {
                     {!isRecording ? (
                         <button
                             onClick={startRecording}
-                            className="absolute bottom-20 left-16 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-3 shadow-lg mb-5 -ml-12"
+                            className="absolute bottom-2 sm:bottom-10 left-2 sm:left-4 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
                             disabled={loading || error || !track}
                         >
                             <Video className="w-4 h-4 sm:w-6 sm:h-6" />
@@ -321,7 +328,7 @@ export default function Camera() {
                     ) : (
                         <button
                             onClick={stopRecording}
-                            className="absolute bottom-20 left-16 bg-red-600 text-white hover:bg-red-800 focus:ring-4 focus:outline-none font-medium rounded-full p-3 shadow-lg mb-5 -ml-12"
+                            className="absolute bottom-10 left-4 bg-red-600 text-white hover:bg-red-800 focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
                         >
                             <StopCircle className="w-4 h-4 sm:w-6 sm:h-6" />
                         </button>
@@ -329,43 +336,61 @@ export default function Camera() {
 
                     <button
                         onClick={takePhoto}
-                        className="absolute bottom-20 left-16 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-3 shadow-lg mb-5 ml-1"
+                        className="absolute bottom-2 sm:bottom-10 left-10 sm:left-20 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
                         disabled={loading || error || !track}
                     >
                         <Aperture className='w-4 h-4 sm:w-6 sm:h-6' />
                     </button>
+                    </div>
 
                     <div className="mt-5 text-center">
-                        <h1>Play with <b>{formData.pet_name || "your pet"} </b></h1>
-                        <button
-                            className="w-80 text-black bg-bright-neon-yellow hover:bg-dark-grayish-orange focus:ring-4 hover:text-white focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5"
-                            disabled={loading || error}
-                        >
-                            Start Fetch
-                        </button>
-                    </div>
-                    
+                <h1>
+                    Play with <b>{formData.pet_name || "your pet"} </b>
+                </h1>
+
+                <div className="mt-3 flex justify-center items-center flex-wrap gap-3 sm:gap-5">
+                    {/* Start Fetch Button */}
+                    <button
+                    className="w-64 sm:w-80 text-black bg-bright-neon-yellow hover:bg-dark-grayish-orange focus:ring-4 hover:text-white focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5"
+                    disabled={loading || error}
+                    >
+                    Start Fetch
+                    </button>
+
+                    {/* Mic Button */}
+                    <button
+                    onClick={handleMicToggle}
+                    className="bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-3 shadow-lg"
+                    disabled={loading || error}
+                    >
+                    <Mic className="w-4 h-4 sm:w-6 sm:h-6" />
+                    </button>
+                </div>
+                </div>
                 </div>
 
-                <div className="mt-10 flex flex-col items-center">
-                    <h1 className="font-semibold text-center mt-20 mb-5">CURRENT EMOTION:  
-                        <p className="w-60 h-20 text-2xl text-white bg-dark-grayish-orange focus:outline-none font-bold rounded-lg px-3 py-3 text-center">
-                            {error ? "Not Available" : emotion}
-                        </p>
-                    </h1>
-                    
-                    <div className="mt-6 bg-dark-grayish-orange w-80 h-50 rounded-lg p-3">
-                        <p className="text-white font-semibold">ScreenShot:</p>
-                        <div className={`result ${hasPhoto ? 'hasPhoto' : ''}`}>
-                            <canvas className="mt-5 ml-2" ref={photoRef}></canvas>
+                
 
-                            {hasPhoto && (
-                                <button
-                                    onClick={closePhoto}
-                                    className="lg:w-full w-80 text-white bg-dark-pastel-orange hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                                >
-                                    Close
-                                </button>
+                <div className="mt-10 flex flex-col items-center">
+                <h1 className="font-semibold text-center mt-20 mb-5">
+                    CURRENT EMOTION:  
+                    <p className="w-60 sm:w-72 md:w-80 h-20 text-2xl sm:text-3xl text-white bg-dark-grayish-orange focus:outline-none font-bold rounded-lg px-3 py-3 text-center">
+                    {error ? "Not Available" : emotion}
+                    </p>
+                </h1>
+                
+                <div className="mt-6 bg-dark-grayish-orange w-full max-w-xs sm:max-w-sm md:max-w-md rounded-lg p-4">
+                <p className="text-white font-semibold text-base sm:text-lg mb-2 break-words">ScreenShot:</p>
+                    <div className={`result ${hasPhoto ? 'hasPhoto' : ''}`}>
+                    <canvas className="mt-5 ml-2" ref={photoRef}></canvas>
+
+                    {hasPhoto && (
+                        <button
+                        onClick={closePhoto}
+                        className="lg:w-full w-72 sm:w-80 text-white bg-dark-pastel-orange hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-3"
+                        >
+                        Close
+                        </button>
                             )}
                         </div>
                     </div>

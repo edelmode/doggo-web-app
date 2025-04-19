@@ -144,7 +144,7 @@ export default function Navbar() {
 
             {/* Mobile Menu */}
             {isOpen && (
-                <ul className="absolute top-16 left-0 w-full bg-white rounded-lg py-4 flex flex-col space-y-4 items-center md:hidden shadow-md">
+                <ul className="absolute top-10 left-0 w-full bg-white rounded-lg py-4 flex flex-col space-y-4 items-center md:hidden shadow-md">
                     <li>
                         <button
                             className={`font-medium hover:text-yellow transition duration-300 ${
@@ -191,9 +191,9 @@ export default function Navbar() {
                     <li>
                         <button
                             className={`font-medium hover:text-yellow transition duration-300 ${
-                                isActive("/gallery-page") ? "text-black font-semibold" : ""
+                                isActive("/account") ? "text-black font-semibold" : ""
                             }`}
-                            onClick={() => handleNavigation("/gallery-page")}
+                            onClick={() => handleNavigation("/account")}
                         >
                             My Account
                         </button>
@@ -204,7 +204,7 @@ export default function Navbar() {
                             className={`font-medium hover:text-yellow transition duration-300 ${
                                 isActive("/gallery-page") ? "text-black font-semibold" : ""
                             }`}
-                            onClick={() => handleNavigation("/gallery-page")}
+                            onClick={() => handleNavigation("/settings")}
                         >
                             Settings
                         </button>
