@@ -5,6 +5,7 @@ from .extensions import mysql, mail
 from .routes.auth import auth_bp
 from .routes.user_blueprint import user_bp
 from .routes.email import email_bp
+from .routes.gallery import gallery_bp
 import os
 from flask_jwt_extended import JWTManager
 
@@ -52,5 +53,6 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(user_bp, url_prefix="/api/user")
     app.register_blueprint(email_bp, url_prefix="/api/email")
+    app.register_blueprint(gallery_bp, url_prefix="/api/gallery")
 
     return app
