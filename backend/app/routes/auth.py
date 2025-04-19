@@ -222,7 +222,7 @@ def reset_password():
 
     try:
         # Decode the JWT token
-        decoded = jwt.decode(token, secret_key, algorithms=["HS256"])
+        decoded = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
         email = decoded.get('email')
         print(f"Decoded email: {email}")
 
