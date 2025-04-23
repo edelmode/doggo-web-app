@@ -87,7 +87,7 @@ const Gallery = () => {
     >
       <button
         onClick={handleDashboardButtonClick}
-        className="absolute top-4 left-4 bg-dark-grayish-orange text-white px-4 py-2 rounded hover:bg-yellow"
+        className="absolute top-20 left-4 bg-dark-grayish-orange text-white px-4 py-2 rounded hover:bg-yellow"
       >
         Your Dog's Emotion
       </button>
