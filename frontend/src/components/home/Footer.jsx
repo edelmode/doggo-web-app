@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import PrivacyPolicy from './PrivacyPolicy';
+import 'font-awesome/css/font-awesome.min.css';
+
 
 const Footer = () => {
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
@@ -191,7 +193,7 @@ const Footer = () => {
       {isPrivacyOpen && <PrivacyPolicy togglePrivacyModal={togglePrivacyModal} />}
 
       {/* Copyright Section */}
-      <div className="mt-8 text-center text-sm text-white">
+      <div className="mt-8 text-right text-sm text-white mr-10">
         <p>&copy; {new Date().getFullYear()} Doggo. All rights reserved.</p>
       </div>
     </footer>

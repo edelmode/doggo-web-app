@@ -1,5 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Aperture, ZoomIn, ZoomOut, Video, StopCircle, Maximize2, Minimize2, Mic } from 'lucide-react';
+import ManualModal from './manualModal';
+
 
 export default function Camera() {
     const videoRef = useRef(null);
@@ -365,6 +367,17 @@ export default function Camera() {
         getVideo();
     };
 
+    const [showManualModal, setShowManualModal] = useState(true); // Show by default
+
+    const videoUrls = [
+    "/public/DOGGO1.mp4",
+    "/public/DOGGO2.mp4",
+    "/public/DOGGO3.mp4",
+    "/public/DOGGO4.mp4",
+    "/public/DOGGO5.mp4",
+    ];
+
+
     return (
         <div className="text-black bg-very-bright-pastel-orange bg-cover bg-center min-h-screen items-center px-20 py-8 font-montserrat">
             <div className="justify flex flex-col lg:flex-row w-full overflow-x-hidden gap-7">
@@ -521,6 +534,12 @@ export default function Camera() {
                     </div>
                 </div>
             </div>
+            <ManualModal 
+  isOpen={showManualModal}
+  onClose={() => setShowManualModal(false)}
+  videos={videoUrls}
+/>
+
         </div>
     );
 }

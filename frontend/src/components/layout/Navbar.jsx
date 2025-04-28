@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { CircleUser, LogOut, Settings, User } from 'lucide-react';
+import { CircleUser, LogOut, BookOpen, User } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false); 
@@ -109,7 +110,7 @@ export default function Navbar() {
                                     <button
                                         className="flex px-4 py-2 hover:text-yellow"
                                     >
-                                        <Settings className="h-5 w-5 mr-2" /> Settings
+                                        <BookOpen className="h-5 w-5 mr-2" /> Manual
                                     </button>
                                 </li>
                                 <li>
@@ -202,7 +203,7 @@ export default function Navbar() {
                                 isActive("/gallery-page") ? "text-black font-semibold" : ""
                             }`}
                         >
-                            Settings
+                            Manual
                         </button>
                     
                     </li>
