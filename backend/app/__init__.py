@@ -6,6 +6,8 @@ from .routes.auth import auth_bp
 from .routes.user_blueprint import user_bp
 from .routes.email import email_bp
 from .routes.gallery import gallery_bp
+from .routes.dog_pose import dog_pose_bp
+from .routes.camera import camera_bp
 import os
 from flask_jwt_extended import JWTManager
 
@@ -54,5 +56,7 @@ def create_app():
     app.register_blueprint(user_bp, url_prefix="/api/user")
     app.register_blueprint(email_bp, url_prefix="/api/email")
     app.register_blueprint(gallery_bp, url_prefix="/api/gallery")
-
+    app.register_blueprint(dog_pose_bp, url_prefix="/api/dog-pose")
+    app.register_blueprint(camera_bp, url_prefix="/api/camera")
+    
     return app
