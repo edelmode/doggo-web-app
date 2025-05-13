@@ -170,7 +170,6 @@ const Gallery = () => {
 
                   {/* Video Information */}
                   <div className="mt-2 text-left">
-                    <h3 className="text-lg font-semibold">{video.title}</h3>
                     <p className="text-sm text-gray-500">{new Date(video.created_at).toLocaleDateString()}</p>
                   </div>
                 </div>

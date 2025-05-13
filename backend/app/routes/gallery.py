@@ -451,4 +451,3 @@ def delete_media():
     except Exception as e:
         print(f"Error deleting media: {e}")
         return jsonify({"error": str(e)}), 500
-    

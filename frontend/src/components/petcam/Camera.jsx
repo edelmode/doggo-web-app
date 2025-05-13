@@ -1,79 +1,79 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Aperture, ZoomIn, ZoomOut, Video, StopCircle, Maximize2, Minimize2, Mic, Layers } from 'lucide-react';
+import { Aperture, Video, StopCircle, Maximize2, Minimize2 } from 'lucide-react';
+import EmotionDisplay from './EmotionDisplay';
+import ControlButtons from './ControlButton';
 
 export default function Camera() {
-    const videoRef = useRef(null);
     const photoRef = useRef(null);
-    const canvasRef = useRef(null);
     const [hasPhoto, setHasPhoto] = useState(false);
-    const [zoomLevel, setZoomLevel] = useState(1);
     const [isRecording, setIsRecording] = useState(false);
-    const [mediaRecorder, setMediaRecorder] = useState(null);
     const [emotion, setEmotion] = useState('No Emotion Detected');
-    const chunks = useRef([]);
-    const [userDetails, setUserDetails] = useState(null);
-    const [formData, setFormData] = useState({
-        pet_name: "",
-    });
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [processingFrame, setProcessingFrame] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [savedPhotoUrl, setSavedPhotoUrl] = useState(null);
     const [isSavingVideo, setIsSavingVideo] = useState(false);
     const [savedVideoUrl, setSavedVideoUrl] = useState(null);
     
+    // Form data state (simplified for this example)
+    const [formData, setFormData] = useState({
+        pet_name: "pet"
+    });
+    
     // Pi Camera Stream URL - replace with your Raspberry Pi's IP address
-    const [piCameraUrl, setPiCameraUrl] = useState('http://192.168.1.140:5000/video_feed');
+    const [piCameraUrl, setPiCameraUrl] = useState('http://192.168.1.229:5000/video_feed');
     
     // Pi control endpoints
-    const [piControlUrl, setPiControlUrl] = useState('http://192.168.1.140:5000');
+    const piControlUrl = 'http://192.168.1.229:5000';
     
-    // New state variables for dog pose detection
-    const [isPoseDetectionActive, setIsPoseDetectionActive] = useState(true);
-    const [keypoints, setKeypoints] = useState(null);
-    const [detectionConfidence, setDetectionConfidence] = useState(0);
-    const [processingFrame, setProcessingFrame] = useState(false);
-    const detectionIntervalRef = useRef(null);
-    
-    // Reference to video stream for recording from Pi camera
-    const [piVideoStream, setPiVideoStream] = useState(null);
+    // Handle connecting issues
+    useEffect(() => {
+        // Set a timeout to check if the stream is loading
+        const streamLoadTimeout = setTimeout(() => {
+            const img = document.getElementById('pi-camera-stream');
+            if (img && img.complete) {
+                setLoading(false);
+            }
+        }, 3000);
+        
+        return () => clearTimeout(streamLoadTimeout);
+    }, [piCameraUrl]);
+
+    // Check connection status to Pi server
+    useEffect(() => {
+        const checkConnection = async () => {
+            try {
+                const response = await fetch(`${piControlUrl}/get_current_emotion`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    timeout: 3000
+                });
+                
+                if (response.ok) {
+                    setError(null);
+                } else {
+                    setError("Pi server reachable but returning errors");
+                }
+            } catch (err) {
+                console.error('Error checking Pi connection:', err);
+                setError("Cannot connect to Pi server");
+            }
+        };
+        
+        checkConnection();
+        
+        // Set up a periodic connection check
+        const intervalId = setInterval(checkConnection, 30000); // Check every 30 seconds
+        
+        return () => clearInterval(intervalId);
+    }, [piControlUrl]);
 
     const handleMicToggle = () => {
         console.log('Mic toggled!');
-        // Optional: Add speech-to-text logic or mic permissions here
-    };
-
-    // Handle zoom through API calls to the Pi
-    const handleZoom = async (direction) => {
-        try {
-            setProcessingFrame(true);
-            
-            const zoomChange = direction === 'in' ? 0.1 : -0.1;
-            const newZoom = Math.min(Math.max(zoomLevel + zoomChange, 1), 10); // Limit between 1 and 10
-            
-            // Send zoom request to Raspberry Pi
-            const response = await fetch(`${piControlUrl}/zoom`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ zoom_level: newZoom }),
-            });
-            
-            if (!response.ok) {
-                throw new Error(`Zoom request failed: ${response.status}`);
-            }
-            
-            // Update local zoom level state
-            setZoomLevel(newZoom);
-            setError(null);
-        } catch (err) {
-            console.error('Error applying zoom:', err);
-            setError(`Failed to adjust zoom: ${err.message}`);
-        } finally {
-            setProcessingFrame(false);
-        }
     };
 
     const takePhoto = async () => {
@@ -83,6 +83,12 @@ export default function Camera() {
             // Request a photo capture from the Pi
             const response = await fetch(`${piControlUrl}/camera/capture_photo`, {
                 method: 'POST',
+                credentials: 'omit', // Don't send cookies
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                // Empty body but specified as JSON to avoid preflight issue
+                body: JSON.stringify({})
             });
             
             if (!response.ok) {
@@ -97,6 +103,11 @@ export default function Camera() {
             
             // Get photo data from response
             const photoData = result.photo;
+            
+            // Update emotion if available
+            if (result.emotion) {
+                setEmotion(`${result.emotion.class} (${result.emotion.confidence.toFixed(2)}%)`);
+            }
             
             // Display the photo on canvas
             const photo = photoRef.current;
@@ -144,7 +155,7 @@ export default function Camera() {
             }
             
             // Take and save the photo directly on the Pi
-            const response = await fetch(`${piControlUrl}/take_and_save_photo`, {
+            const response = await fetch(`${piControlUrl}/camera/capture_photo`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -166,8 +177,7 @@ export default function Camera() {
                 throw new Error(result.error);
             }
             
-            // Send to your backend server for Azure storage
-            // (This step might be optional if your Pi handles the Azure upload directly)
+
             const backendResponse = await fetch('http://localhost:3001/api/gallery/save-photo', {
                 method: 'POST',
                 headers: {
@@ -193,11 +203,12 @@ export default function Camera() {
             }
             
             // Save the URL to state
-            setSavedPhotoUrl(backendResult.photo_url);
+            setSavedPhotoUrl(backendResult.photo_url); 
+            setIsSaving(false);
+
         } catch (err) {
             console.error('Error saving photo:', err);
             setError(`Failed to save photo: ${err.message}`);
-        } finally {
             setIsSaving(false);
         }
     };
@@ -218,6 +229,7 @@ export default function Camera() {
             
             setIsRecording(true);
             setError(null);
+            
         } catch (err) {
             console.error('Error starting recording:', err);
             setError(`Failed to start recording: ${err.message}`);
@@ -226,45 +238,79 @@ export default function Camera() {
         }
     };
 
-    // Stop recording and save the video
     const stopRecording = async () => {
         try {
             setIsSavingVideo(true);
             
+            console.log("Stopping recording...");
+            
             // Request the Pi to stop recording and get the video
             const response = await fetch(`${piControlUrl}/stop_recording`, {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
             
             if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`Stop recording error response: ${errorText}`);
                 throw new Error(`Failed to stop recording on Pi: ${response.status}`);
             }
             
             const result = await response.json();
             
             if (result.error) {
+                console.error("Stop recording result error:", result.error);
                 throw new Error(result.error);
             }
             
-            // Now save the recording to Azure
-            await saveRecordingToAzure(result.video_path);
+            console.log("Recording stopped successfully:", result);
+            
+            // Try to save the recording to Azure if path exists
+            if (result.video_path) {
+                try {
+                    console.log("Saving recording to Azure...");
+                    await saveRecordingToAzure(result.video_path);
+                } catch (saveError) {
+                    console.error("Error saving to Azure:", saveError);
+                    // Provide more feedback to user
+                    setError(`Video saved locally but Azure upload failed: ${saveError.message}`);
+                }
+            } else {
+                console.warn("No video path in result:", result);
+                setError("Video recording stopped but no file path was returned");
+            }
             
             setIsRecording(false);
+            
+            // If we have a video URL, store it
+            if (result.video_url) {
+                setSavedVideoUrl(result.video_url);
+                console.log(`Video saved locally at: ${result.video_url}`);
+            }
+            
         } catch (err) {
             console.error('Error stopping recording:', err);
             setError(`Failed to stop recording: ${err.message}`);
             setIsRecording(false);
+        } finally {
+            setIsSavingVideo(false);
         }
     };
 
     const saveRecordingToAzure = async (videoPath) => {
         try {
+            setIsSavingVideo(true);
+            
             // Get user ID from local storage
             const user_id = localStorage.getItem("user_id");
             if (!user_id) {
                 throw new Error("User not logged in");
             }
 
+            console.log(`Attempting to transfer video: ${videoPath}`);
+            
             // Request the Pi server to transfer the video to Azure
             const response = await fetch(`${piControlUrl}/transfer_video`, {
                 method: 'POST',
@@ -279,6 +325,8 @@ export default function Camera() {
             });
             
             if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`Transfer video error response: ${errorText}`);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
@@ -288,125 +336,83 @@ export default function Camera() {
                 throw new Error(result.error);
             }
             
+            console.log("Video transfer successful:", result);
+            
+            // First, fetch the actual video file from the Pi server
+            const videoFileUrl = `${piControlUrl}${result.video_url}`;
+            console.log(`Fetching video file from: ${videoFileUrl}`);
+            
+            const videoResponse = await fetch(videoFileUrl);
+            if (!videoResponse.ok) {
+                throw new Error(`Failed to fetch video file from Pi: ${videoResponse.status}`);
+            }
+            
+            // Convert to blob
+            const videoBlob = await videoResponse.blob();
+            console.log(`Video file fetched successfully, size: ${videoBlob.size} bytes`);
+            
+            // Check if the blob has data
+            if (videoBlob.size === 0) {
+                throw new Error("Video file is empty");
+            }
+            
+            // Create a File object with proper MIME type
+            const videoFile = new File([videoBlob], result.filename, { 
+                type: 'video/mp4' 
+            });
+            
+            // Create a FormData object to send the file
+            const formDataObj = new FormData();
+            formDataObj.append('user_id', user_id);
+            formDataObj.append('pet_name', formData.pet_name || "pet");
+            formDataObj.append('emotion', result.emotion || "Unknown");
+            
+            // Debug: Log what's being appended to video_file
+            console.log(`Adding video file: ${videoFile.name}, size: ${videoFile.size}, type: ${videoFile.type}`);
+            
+            // Make sure we're using the expected field name that the backend is looking for
+            formDataObj.append('video_file', videoFile);
+            
+            // Log the FormData entries for debugging
+            for (let [key, value] of formDataObj.entries()) {
+                console.log(`FormData Entry: ${key} = ${value instanceof File ? `File: ${value.name}, ${value.size} bytes` : value}`);
+            }
+            
+            // Now upload to Azure via backend server with the actual file
+            const backendResponse = await fetch('http://localhost:3001/api/camera/gallery/save-video', {
+                method: 'POST',
+                body: formDataObj 
+            });
+            
+            if (!backendResponse.ok) {
+                const errorText = await backendResponse.text();
+                console.error(`Backend save video error: ${errorText}`);
+                throw new Error(`Backend error! status: ${backendResponse.status}`);
+            }
+            
+            const backendResult = await backendResponse.json();
+            
+            if (backendResult.error) {
+                console.error("Backend result error:", backendResult.error);
+                throw new Error(backendResult.error);
+            }
+            
+            console.log("Video saved to Azure:", backendResult);
+            
             // Save the URL to state
-            setSavedVideoUrl(result.video_url);
+            setSavedVideoUrl(backendResult.video_url || result.video_url);
             alert('Video saved successfully! Check your gallery to view it.');
+            
         } catch (err) {
             console.error('Error saving video:', err);
             setError(`Failed to save video: ${err.message}`);
+            
+            // Show a more detailed error dialog
+            alert(`Video saving failed: ${err.message}. Please try again or check console for details.`);
         } finally {
             setIsSavingVideo(false);
         }
     };
-
-    // const detectEmotion = async () => {
-    //     if (!isPoseDetectionActive) {
-    //         // Only run simulated emotion if pose detection is off
-    //         const emotions = ['Happy', 'Sad', 'Surprised', 'Angry', 'No Emotion Detected'];
-    //         const randomEmotion = emotions[Math.floor(Math.random() * emotions.length)];
-    //         setEmotion(randomEmotion);
-    //         return;
-    //     }
-        
-    //     try {
-    //         // Try to get the emotion from the Pi's pose detection
-    //         const response = await fetch(`${piControlUrl}/get_emotion`);
-            
-    //         if (!response.ok) {
-    //             throw new Error(`Failed to get emotion: ${response.status}`);
-    //         }
-            
-    //         const result = await response.json();
-            
-    //         if (result.emotion) {
-    //             setEmotion(result.emotion);
-    //         }
-            
-    //         // Also update keypoints if available
-    //         if (result.keypoints) {
-    //             setKeypoints(result.keypoints);
-    //             setDetectionConfidence(result.confidence || 0);
-    //         }
-    //     } catch (err) {
-    //         console.error('Error getting emotion:', err);
-    //         // Fallback to random emotion if Pi detection fails
-    //         const emotions = ['Happy', 'Sad', 'Surprised', 'Angry', 'No Emotion Detected'];
-    //         const randomEmotion = emotions[Math.floor(Math.random() * emotions.length)];
-    //         setEmotion(randomEmotion);
-    //     }
-    // };
-
-    // useEffect(() => {
-    //     // Set up interval to check emotion
-    //     const emotionInterval = setInterval(detectEmotion, 2000);
-        
-    //     // Check connection to Pi camera
-    //     const checkPiConnection = async () => {
-    //         try {
-    //             const response = await fetch(`${piControlUrl}/health_check`);
-    //             if (!response.ok) {
-    //                 setError("Cannot connect to Pi camera service");
-    //             } else {
-    //                 setError(null);
-    //             }
-    //         } catch (err) {
-    //             setError(`Cannot connect to Pi camera: ${err.message}`);
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     };
-        
-    //     checkPiConnection();
-        
-    //     return () => {
-    //         clearInterval(emotionInterval);
-            
-    //         // Clean up pose detection interval
-    //         if (detectionIntervalRef.current) {
-    //             clearInterval(detectionIntervalRef.current);
-    //         }
-    //     };
-    // }, [isPoseDetectionActive]);
-
-    useEffect(() => {
-        const fetchUserDetails = async () => {
-            const user_id = localStorage.getItem("user_id");
-            
-            if (!user_id) {
-                setError("User not logged in");
-                setLoading(false);
-                return;
-            }
-            
-            try {
-                const response = await fetch(`http://localhost:3001/api/user/user-details?user_id=${user_id}`, {
-                    method: "GET",
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                
-                setUserDetails(data);
-                setFormData({
-                    pet_name: data.pet_name,
-                });
-                setError(null);
-            } catch (error) {
-                console.error('Error fetching user details:', error);
-                setError(`Failed to load user details: ${error.message}`);
-            } finally {
-                setLoading(false);
-            }
-        };
-        
-        fetchUserDetails();
-    }, []);
 
     const toggleFullScreen = () => {
         const streamContainer = document.getElementById('pi-stream-container');
@@ -439,11 +445,25 @@ export default function Camera() {
     // Function to retry camera connection
     const retryCamera = () => {
         setError(null);
-        setPiCameraUrl(`http://192.168.1.140:5000/video_feed?cache=${Date.now()}`); // Force reload by adding timestamp
+        setLoading(true);
+        // Force reload by adding timestamp to URL
+        setPiCameraUrl(`http://192.168.1.229:5000/video_feed?cache=${Date.now()}`);
+    };
+    
+    // Handle image load error
+    const handleImageError = () => {
+        setLoading(false);
+        setError("Cannot connect to Pi camera stream");
+    };
+    
+    // Handle image load success
+    const handleImageLoad = () => {
+        setLoading(false);
+        setError(null);
     };
 
     return (
-        <div className="text-black bg-very-bright-pastel-orange bg-cover bg-center min-h-screen items-center px-20 py-8 font-montserrat">
+        <div className="text-black bg-very-bright-pastel-orange bg-cover bg-center min-h-screen items-center px-5 sm:px-20 py-8 font-montserrat">
             <div className="justify flex flex-col lg:flex-row w-full overflow-x-hidden gap-7">
                 <div className="relative inline-block mt-6 w-full ">
                     {error && (
@@ -473,7 +493,8 @@ export default function Camera() {
                             src={piCameraUrl}
                             className="w-full h-full object-cover rounded-lg border border-gray-300"
                             alt="Raspberry Pi Camera Stream"
-                            onError={() => setError("Cannot connect to Pi camera stream")}
+                            onError={handleImageError}
+                            onLoad={handleImageLoad}
                         />
 
                         <button
@@ -488,24 +509,7 @@ export default function Camera() {
                             )}
                         </button>
                         
-                        {/* Re-added zoom buttons with modified functionality */}
-                        <button
-                            onClick={() => handleZoom('in')}
-                            className="absolute bottom-10 sm:bottom-28 right-2 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
-                            disabled={loading || error || processingFrame}
-                        >
-                            <ZoomIn className='w-4 h-4 sm:w-6 sm:h-6' />
-                        </button>
-                        
-                        <button
-                            onClick={() => handleZoom('out')}
-                            className="absolute bottom-2 sm:bottom-12 right-2 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
-                            disabled={loading || error || processingFrame}
-                        >
-                            <ZoomOut className='w-4 h-4 sm:w-6 sm:h-6' />
-                        </button>
-
-                        {/* Re-added recording controls */}
+                        {/* Recording controls */}
                         {!isRecording ? (
                             <button
                                 onClick={startRecording}
@@ -525,7 +529,7 @@ export default function Camera() {
                         )}
 
                         {isSavingVideo && (
-                            <div className="absolute bottom-20 left-16 ml-16 text-dark-pastel-orange font-medium">
+                            <div className="absolute bottom-20 left-4 sm:left-16 ml-4 sm:ml-16 text-dark-pastel-orange font-medium">
                                 Saving video...
                             </div>
                         )}
@@ -533,7 +537,7 @@ export default function Camera() {
                         <button
                             onClick={takePhoto}
                             className="absolute bottom-2 sm:bottom-10 left-10 sm:left-20 bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-2 sm:p-3 shadow-lg"
-                            disabled={loading || error}
+                            disabled={loading || error || processingFrame}
                         >
                             <Aperture className='w-4 h-4 sm:w-6 sm:h-6' />
                         </button>
@@ -545,66 +549,24 @@ export default function Camera() {
                         )}
                     </div>
 
-                    <div className="mt-5 text-center">
-                        <h1>
-                            Play with <b>{formData.pet_name || "your pet"} </b>
-                        </h1>
-
-                        <div className="mt-3 flex justify-center items-center flex-wrap gap-3 sm:gap-5">
-                            {/* Start Fetch Button */}
-                            <button
-                            className="w-64 sm:w-80 text-black bg-bright-neon-yellow hover:bg-dark-grayish-orange focus:ring-4 hover:text-white focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5"
-                            disabled={loading || error}
-                            >
-                            Start Fetch
-                            </button>
-
-                            {/* Mic Button */}
-                            <button
-                            onClick={handleMicToggle}
-                            className="bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-3 shadow-lg"
-                            disabled={loading || error}
-                            >
-                            <Mic className="w-4 h-4 sm:w-6 sm:h-6" />
-                            </button>
-                        </div>
-                    </div>
+                    <ControlButtons 
+                        loading={loading} 
+                        error={error} 
+                        handleMicToggle={handleMicToggle} 
+                    />
                 </div>
 
-                
-                <div className="mt-10 flex flex-col items-center">
-                    <h1 className="font-semibold text-center mt-20 mb-5">
-                        {/* {isPoseDetectionActive ? "DETECTED POSE:" : "CURRENT EMOTION:"}   */}
-                        <p className="w-60 sm:w-72 md:w-80 h-20 text-2xl sm:text-3xl text-white bg-dark-grayish-orange focus:outline-none font-bold rounded-lg px-3 py-3 text-center">
-                        {error ? "Not Available" : emotion}
-                        </p>
-                    </h1>
-                
-                    <div className="mt-6 bg-dark-grayish-orange w-full max-w-xs sm:max-w-sm md:max-w-md rounded-lg p-4">
-                        <p className="text-white font-semibold text-base sm:text-lg mb-2 break-words">ScreenShot:</p>
-                        <div className={`result ${hasPhoto ? 'hasPhoto' : ''}`}>
-                            <canvas className="mt-5 ml-2" ref={photoRef}></canvas>
-
-                            {hasPhoto && (
-                                <div className="flex flex-col gap-2 mt-2">
-                                    <button
-                                        onClick={savePhotoToAzure}
-                                        className="w-full text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                                        disabled={isSaving || savedPhotoUrl}
-                                    >
-                                        {isSaving ? 'Saving...' : savedPhotoUrl ? 'Saved!' : 'Save Photo'}
-                                    </button>
-                                    <button
-                                        onClick={closePhoto}
-                                        className="w-full text-white bg-dark-pastel-orange hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                                    >
-                                        Close
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
+                {/* Emotion Display Component */}
+                <EmotionDisplay 
+                    error={error}
+                    emotion={emotion}
+                    hasPhoto={hasPhoto}
+                    photoRef={photoRef}
+                    savePhotoToAzure={savePhotoToAzure}
+                    isSaving={isSaving}
+                    savedPhotoUrl={savedPhotoUrl}
+                    closePhoto={closePhoto}
+                />
             </div>
         </div>
     );
