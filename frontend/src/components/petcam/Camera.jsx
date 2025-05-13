@@ -1,5 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Aperture, Video, StopCircle, Maximize2, Minimize2, Mic } from 'lucide-react';
+import { Aperture, Video, StopCircle, Maximize2, Minimize2 } from 'lucide-react';
+import EmotionDisplay from './EmotionDisplay';
+import ControlButtons from './ControlButton';
 
 export default function Camera() {
     const photoRef = useRef(null);
@@ -39,13 +41,41 @@ export default function Camera() {
         return () => clearTimeout(streamLoadTimeout);
     }, [piCameraUrl]);
 
+    // Check connection status to Pi server
+    useEffect(() => {
+        const checkConnection = async () => {
+            try {
+                const response = await fetch(`${piControlUrl}/get_current_emotion`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    timeout: 3000
+                });
+                
+                if (response.ok) {
+                    setError(null);
+                } else {
+                    setError("Pi server reachable but returning errors");
+                }
+            } catch (err) {
+                console.error('Error checking Pi connection:', err);
+                setError("Cannot connect to Pi server");
+            }
+        };
+        
+        checkConnection();
+        
+        // Set up a periodic connection check
+        const intervalId = setInterval(checkConnection, 30000); // Check every 30 seconds
+        
+        return () => clearInterval(intervalId);
+    }, [piControlUrl]);
+
     const handleMicToggle = () => {
         console.log('Mic toggled!');
-        // Optional: Add speech-to-text logic or mic permissions here
     };
 
-
-    // Function to capture photo from Pi camera stream with improved error handling
     const takePhoto = async () => {
         try {
             setProcessingFrame(true);
@@ -212,6 +242,8 @@ export default function Camera() {
         try {
             setIsSavingVideo(true);
             
+            console.log("Stopping recording...");
+            
             // Request the Pi to stop recording and get the video
             const response = await fetch(`${piControlUrl}/stop_recording`, {
                 method: 'POST',
@@ -221,49 +253,64 @@ export default function Camera() {
             });
             
             if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`Stop recording error response: ${errorText}`);
                 throw new Error(`Failed to stop recording on Pi: ${response.status}`);
             }
             
             const result = await response.json();
             
             if (result.error) {
+                console.error("Stop recording result error:", result.error);
                 throw new Error(result.error);
             }
+            
+            console.log("Recording stopped successfully:", result);
             
             // Try to save the recording to Azure if path exists
             if (result.video_path) {
                 try {
+                    console.log("Saving recording to Azure...");
                     await saveRecordingToAzure(result.video_path);
                 } catch (saveError) {
                     console.error("Error saving to Azure:", saveError);
-                    // Continue even if save to Azure fails - we still have local video
+                    // Provide more feedback to user
+                    setError(`Video saved locally but Azure upload failed: ${saveError.message}`);
                 }
+            } else {
+                console.warn("No video path in result:", result);
+                setError("Video recording stopped but no file path was returned");
             }
             
             setIsRecording(false);
-            setIsSavingVideo(false);
             
             // If we have a video URL, store it
             if (result.video_url) {
                 setSavedVideoUrl(result.video_url);
+                console.log(`Video saved locally at: ${result.video_url}`);
             }
             
         } catch (err) {
             console.error('Error stopping recording:', err);
             setError(`Failed to stop recording: ${err.message}`);
             setIsRecording(false);
+        } finally {
             setIsSavingVideo(false);
         }
     };
 
     const saveRecordingToAzure = async (videoPath) => {
         try {
+            setIsSavingVideo(true);
+            
             // Get user ID from local storage
             const user_id = localStorage.getItem("user_id");
             if (!user_id) {
                 throw new Error("User not logged in");
             }
 
+            console.log(`Attempting to transfer video: ${videoPath}`);
+            
             // Request the Pi server to transfer the video to Azure
             const response = await fetch(`${piControlUrl}/transfer_video`, {
                 method: 'POST',
@@ -278,6 +325,8 @@ export default function Camera() {
             });
             
             if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`Transfer video error response: ${errorText}`);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
@@ -287,17 +336,83 @@ export default function Camera() {
                 throw new Error(result.error);
             }
             
+            console.log("Video transfer successful:", result);
+            
+            // First, fetch the actual video file from the Pi server
+            const videoFileUrl = `${piControlUrl}${result.video_url}`;
+            console.log(`Fetching video file from: ${videoFileUrl}`);
+            
+            const videoResponse = await fetch(videoFileUrl);
+            if (!videoResponse.ok) {
+                throw new Error(`Failed to fetch video file from Pi: ${videoResponse.status}`);
+            }
+            
+            // Convert to blob
+            const videoBlob = await videoResponse.blob();
+            console.log(`Video file fetched successfully, size: ${videoBlob.size} bytes`);
+            
+            // Check if the blob has data
+            if (videoBlob.size === 0) {
+                throw new Error("Video file is empty");
+            }
+            
+            // Create a File object with proper MIME type
+            const videoFile = new File([videoBlob], result.filename, { 
+                type: 'video/mp4' 
+            });
+            
+            // Create a FormData object to send the file
+            const formDataObj = new FormData();
+            formDataObj.append('user_id', user_id);
+            formDataObj.append('pet_name', formData.pet_name || "pet");
+            formDataObj.append('emotion', result.emotion || "Unknown");
+            
+            // Debug: Log what's being appended to video_file
+            console.log(`Adding video file: ${videoFile.name}, size: ${videoFile.size}, type: ${videoFile.type}`);
+            
+            // Make sure we're using the expected field name that the backend is looking for
+            formDataObj.append('video_file', videoFile);
+            
+            // Log the FormData entries for debugging
+            for (let [key, value] of formDataObj.entries()) {
+                console.log(`FormData Entry: ${key} = ${value instanceof File ? `File: ${value.name}, ${value.size} bytes` : value}`);
+            }
+            
+            // Now upload to Azure via backend server with the actual file
+            const backendResponse = await fetch('http://localhost:3001/api/camera/gallery/save-video', {
+                method: 'POST',
+                body: formDataObj 
+            });
+            
+            if (!backendResponse.ok) {
+                const errorText = await backendResponse.text();
+                console.error(`Backend save video error: ${errorText}`);
+                throw new Error(`Backend error! status: ${backendResponse.status}`);
+            }
+            
+            const backendResult = await backendResponse.json();
+            
+            if (backendResult.error) {
+                console.error("Backend result error:", backendResult.error);
+                throw new Error(backendResult.error);
+            }
+            
+            console.log("Video saved to Azure:", backendResult);
+            
             // Save the URL to state
-            setSavedVideoUrl(result.video_url);
+            setSavedVideoUrl(backendResult.video_url || result.video_url);
             alert('Video saved successfully! Check your gallery to view it.');
+            
         } catch (err) {
             console.error('Error saving video:', err);
             setError(`Failed to save video: ${err.message}`);
+            
+            // Show a more detailed error dialog
+            alert(`Video saving failed: ${err.message}. Please try again or check console for details.`);
         } finally {
             setIsSavingVideo(false);
         }
     };
-
 
     const toggleFullScreen = () => {
         const streamContainer = document.getElementById('pi-stream-container');
@@ -394,7 +509,6 @@ export default function Camera() {
                             )}
                         </button>
                         
-
                         {/* Recording controls */}
                         {!isRecording ? (
                             <button
@@ -435,61 +549,24 @@ export default function Camera() {
                         )}
                     </div>
 
-                    <div className="mt-5 text-center">
-                        <div className="mt-3 flex justify-center items-center flex-wrap gap-3 sm:gap-5">
-                            {/* Start Fetch Button */}
-                            <button
-                            className="w-64 sm:w-80 text-black bg-bright-neon-yellow hover:bg-dark-grayish-orange focus:ring-4 hover:text-white focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5"
-                            disabled={loading || error}
-                            >
-                            Start Fetch
-                            </button>
-
-                            {/* Mic Button */}
-                            <button
-                            onClick={handleMicToggle}
-                            className="bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-3 shadow-lg"
-                            disabled={loading || error}
-                            >
-                            <Mic className="w-4 h-4 sm:w-6 sm:h-6" />
-                            </button>
-                        </div>
-                    </div>
+                    <ControlButtons 
+                        loading={loading} 
+                        error={error} 
+                        handleMicToggle={handleMicToggle} 
+                    />
                 </div>
 
-                
-                <div className="mt-10 flex flex-col items-center">
-                    <h1 className="font-semibold text-center mt-6 sm:mt-20 mb-5">
-                        <p className="w-60 sm:w-72 md:w-80 h-20 text-2xl sm:text-3xl text-white bg-dark-grayish-orange focus:outline-none font-bold rounded-lg px-3 py-3 text-center">
-                        {error ? "Not Available" : emotion}
-                        </p>
-                    </h1>
-                
-                    <div className="mt-6 bg-dark-grayish-orange w-full max-w-xs sm:max-w-sm md:max-w-md rounded-lg p-4">
-                        <p className="text-white font-semibold text-base sm:text-lg mb-2 break-words">ScreenShot:</p>
-                        <div className={`result ${hasPhoto ? 'hasPhoto' : ''}`}>
-                            <canvas className="mt-5 ml-2" ref={photoRef}></canvas>
-
-                            {hasPhoto && (
-                                <div className="flex flex-col gap-2 mt-2">
-                                    <button
-                                        onClick={savePhotoToAzure}
-                                        className="w-full text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                                        disabled={isSaving || savedPhotoUrl}
-                                    >
-                                        {isSaving ? 'Saving...' : savedPhotoUrl ? 'Saved!' : 'Save Photo'}
-                                    </button>
-                                    <button
-                                        onClick={closePhoto}
-                                        className="w-full text-white bg-dark-pastel-orange hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                                    >
-                                        Close
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
+                {/* Emotion Display Component */}
+                <EmotionDisplay 
+                    error={error}
+                    emotion={emotion}
+                    hasPhoto={hasPhoto}
+                    photoRef={photoRef}
+                    savePhotoToAzure={savePhotoToAzure}
+                    isSaving={isSaving}
+                    savedPhotoUrl={savedPhotoUrl}
+                    closePhoto={closePhoto}
+                />
             </div>
         </div>
     );
