@@ -8,6 +8,7 @@ from .routes.email import email_bp
 from .routes.gallery import gallery_bp
 from .routes.dog_pose import dog_pose_bp
 from .routes.camera import camera_bp
+from .routes.dashboard import dashboard_bp
 import os
 from flask_jwt_extended import JWTManager
 
@@ -58,5 +59,6 @@ def create_app():
     app.register_blueprint(gallery_bp, url_prefix="/api/gallery")
     app.register_blueprint(dog_pose_bp, url_prefix="/api/dog-pose")
     app.register_blueprint(camera_bp, url_prefix="/api/camera")
+    app.register_blueprint(dashboard_bp, url_prefix="/api/dashboard")
     
     return app

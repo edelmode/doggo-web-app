@@ -20,6 +20,7 @@ export default function EmotionDisplay({
     const [debugMsg, setDebugMsg] = useState('Initializing...');
     const [pollingSuccess, setPollingSuccess] = useState(false);
     const [noDogDetected, setNoDogDetected] = useState(false);
+    const [lastRecordedEmotion, setLastRecordedEmotion] = useState(null);
 
     // Configuration with environment-specific settings
     const CONFIG = {
@@ -30,6 +31,7 @@ export default function EmotionDisplay({
         socketTimeout: 5000, // 5 seconds
         pollingInterval: 1000, // 1 second
         socketRetryInterval: 30000, // 30 seconds
+        // Removed emotionRecordInterval as we want to record each detection
     };
 
     // Connect to Socket.IO server when component mounts
@@ -85,11 +87,15 @@ export default function EmotionDisplay({
                     setDebugMsg('No dog detected');
                 } else {
                     setNoDogDetected(false);
-                    setSocketEmotion({
+                    const emotionData = {
                         class: data.emotion,
                         confidence: data.confidence,
                         age: data.age
-                    });
+                    };
+                    setSocketEmotion(emotionData);
+                    
+                    // Record emotion to database every time a new emotion is detected
+                    recordEmotionToDatabase(emotionData);
                 }
                 setLastUpdated(new Date());
             });
@@ -135,11 +141,16 @@ export default function EmotionDisplay({
                     
                     if (data.status === 'success') {
                         setNoDogDetected(false);
-                        setSocketEmotion({
+                        const emotionData = {
                             class: data.emotion.class,
                             confidence: data.emotion.confidence,
                             age: data.emotion.age
-                        });
+                        };
+                        setSocketEmotion(emotionData);
+                        
+                        // Record emotion to database every time a new emotion is detected
+                        recordEmotionToDatabase(emotionData);
+                        
                         setLastUpdated(new Date());
                         setPollingSuccess(true);
                         
@@ -194,6 +205,66 @@ export default function EmotionDisplay({
         };
     }, [usingPolling, pollingSuccess]);
 
+    // Updated function to record emotion to database - Record every detection
+    const recordEmotionToDatabase = async (emotionData) => {
+        if (!emotionData || !emotionData.class) {
+            return;
+        }
+
+        try {
+            // Get the user ID from localStorage
+            const userId = localStorage.getItem('user_id');
+            
+            if (!userId) {
+                console.error('User ID not found in localStorage');
+                return;
+            }
+
+            console.log('Recording emotion to database:', {
+                emotion: emotionData.class,
+                confidence: emotionData.confidence,
+                userId: userId
+            });
+
+            // Calculate current date information for our new schema
+            const now = new Date();
+            const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+            // Convert to 1-7 where 1 is Monday (ISO weekday)
+            const dayOfWeek = currentDay === 0 ? 7 : currentDay;
+            
+            // Log the payload for debugging
+            const payload = {
+                user_id: parseInt(userId), // Convert to number in case it's stored as string
+                emotion: emotionData.class,
+                confidence: parseFloat(emotionData.confidence) // Ensure it's a number
+            };
+            console.log('Sending payload to server:', payload);
+            
+            const response = await fetch('http://localhost:3001/api/dashboard/save-emotion', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Emotion recorded to database:', result);
+
+            setLastRecordedEmotion({
+                ...emotionData,
+                timestamp: Date.now()
+            });
+
+        } catch (error) {
+            console.error('Error recording emotion to database:', error);
+        }
+    };
+
     // Determine which emotion to display (socket emotion has priority if available)
     const displayEmotion = socketEmotion ? 
         `${socketEmotion.class} (${socketEmotion.confidence.toFixed(2)}%)` : 
@@ -241,6 +312,13 @@ export default function EmotionDisplay({
                 {lastUpdated && (
                     <div className="text-xs text-gray-500 mt-1">
                         Last updated: {lastUpdated.toLocaleTimeString()}
+                    </div>
+                )}
+                
+                {/* Emotion recording status */}
+                {lastRecordedEmotion && (
+                    <div className="text-xs text-gray-500 mt-1">
+                        Last recorded: {lastRecordedEmotion.class} at {new Date(lastRecordedEmotion.timestamp).toLocaleTimeString()}
                     </div>
                 )}
             </div>

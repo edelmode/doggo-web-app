@@ -1,142 +1,116 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 import { Dog } from 'lucide-react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
-
-
 const Dashboard = () => {
-    // Dummy data for 4 weeks (1 month)
-    const weekData = [
-        {
-            labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
-            datasets: [
-                {
-                    label: 'Happiness',
-                    data: [10, 15, 12, 18, 6, 20, 14],
-                    backgroundColor: '#F1D04B',
-                },
-                {
-                    label: 'Relaxed',
-                    data: [5, 3, 8, 2, 14, 3, 5],
-                    backgroundColor: '#4B5563',
-                },
-                {
-                    label: 'Anger',
-                    data: [2, 19, 2, 5, 2, 15, 4],
-                    backgroundColor: '#FF4B4B',
-                },
-                {
-                    label: 'Fear',
-                    data: [1, 12, 18, 4, 3, 2, 6],
-                    backgroundColor: '#000000',
-                },
-            ],
-        },
-        {
-            labels: ['Day 8', 'Day 9', 'Day 10', 'Day 11', 'Day 12', 'Day 13', 'Day 14'],
-            datasets: [
-                {
-                    label: 'Happiness',
-                    data: [8, 10, 7, 14, 11, 16, 12],
-                    backgroundColor: '#F1D04B',
-                },
-                {
-                    label: 'Relaxed',
-                    data: [4, 2, 6, 1, 3, 2, 4],
-                    backgroundColor: '#4B5563',
-                },
-                {
-                    label: 'Anger',
-                    data: [3, 9, 4, 6, 2, 12, 5],
-                    backgroundColor: '#FF4B4B',
-                },
-                {
-                    label: 'Fear',
-                    data: [2, 10, 16, 5, 3, 1, 7],
-                    backgroundColor: '#000000',
-                },
-            ],
-        },
-        {
-            labels: ['Day 15', 'Day 16', 'Day 17', 'Day 18', 'Day 19', 'Day 20', 'Day 21'],
-            datasets: [
-                {
-                    label: 'Happiness',
-                    data: [13, 11, 9, 10, 15, 18, 14],
-                    backgroundColor: '#F1D04B',
-                },
-                {
-                    label: 'Relaxed',
-                    data: [3, 4, 5, 2, 6, 1, 4],
-                    backgroundColor: '#4B5563',
-                },
-                {
-                    label: 'Anger',
-                    data: [4, 7, 5, 6, 9, 8, 3],
-                    backgroundColor: '#FF4B4B',
-                },
-                {
-                    label: 'Fear',
-                    data: [6, 10, 8, 9, 7, 6, 5],
-                    backgroundColor: '#000000',
-                },
-            ],
-        },
-        {
-            labels: ['Day 22', 'Day 23', 'Day 24', 'Day 25', 'Day 26', 'Day 27', 'Day 28'],
-            datasets: [
-                {
-                    label: 'Happiness',
-                    data: [9, 13, 15, 12, 17, 14, 10],
-                    backgroundColor: '#F1D04B',
-                },
-                {
-                    label: 'Relaxed',
-                    data: [2, 4, 3, 5, 3, 4, 2],
-                    backgroundColor: '#4B5563',
-                },
-                {
-                    label: 'Anger',
-                    data: [6, 13, 7, 5, 6, 9, 4],
-                    backgroundColor: '#FF4B4B',
-                },
-                {
-                    label: 'Fear',
-                    data: [7, 9, 8, 6, 4, 5, 3],
-                    backgroundColor: '#000000',
-                },
-            ],
-        },
+    const [weekData, setWeekData] = useState([]);
+    const [selectedWeek, setSelectedWeek] = useState(0);
+    const [selectedDay, setSelectedDay] = useState(0);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [weeks, setWeeks] = useState([]);
 
-    {
-        labels: ['Day 29', 'Day 30', 'Day 31'],
-        datasets: [
-            {
-                label: 'Happiness',
-                data: [9, 13, 15, 12, 17, 14, 10],
-                backgroundColor: '#F1D04B',
-            },
-            {
-                label: 'Relaxed',
-                data: [2, 4, 3, 5, 3, 4, 2],
-                backgroundColor: '#4B5563',
-            },
-            {
-                label: 'Anger',
-                data: [6, 8, 7, 5, 6, 18, 4],
-                backgroundColor: '#FF4B4B',
-            },
-            {
-                label: 'Fear',
-                data: [7, 9, 8, 6, 4, 5, 3],
-                backgroundColor: '#000000',
-            },
-        ],
-    },
-];
+    // Color constants for emotions
+    const emotionColors = {
+        happiness: '#F1D04B',
+        relaxed: '#4B5563',
+        anger: '#FF4B4B',
+        fear: '#000000'
+    };
 
+    // Get user_id from localStorage or wherever your app stores it
+    const userId = localStorage.getItem('user_id'); // Default to 1 if not found
+
+    useEffect(() => {
+        // Fetch weekly summary data
+        const fetchWeeklySummary = async () => {
+            setLoading(true);
+            try {
+                // Set correct URL based on deployment environment
+                const response = await fetch(`http://localhost:3001/api/dashboard/weekly-summary?user_id=${userId}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Response is not JSON. Check API URL and endpoint.');
+                }
+                
+                const result = await response.json();
+                
+                if (result.status === 'success' && result.weeks) {
+                    processWeeklyData(result.weeks);
+                } else {
+                    setError('Failed to load data: ' + (result.message || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error('Error fetching weekly summary:', err);
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchWeeklySummary();
+    }, [userId]);
+
+    // Process weekly data from API into chart.js format
+    const processWeeklyData = (weeksFromApi) => {
+        if (!weeksFromApi || weeksFromApi.length === 0) {
+            setError('No data available.');
+            return;
+        }
+
+        const processedWeeks = weeksFromApi.map(week => {
+            const dayLabels = week.days.map(day => day.day);
+            
+            // Create datasets for each emotion
+            const datasets = [
+                {
+                    label: 'Happiness',
+                    data: week.days.map(day => day.happiness || 0),
+                    backgroundColor: emotionColors.happiness,
+                },
+                {
+                    label: 'Relaxed',
+                    data: week.days.map(day => day.relaxed || 0),
+                    backgroundColor: emotionColors.relaxed,
+                },
+                {
+                    label: 'Anger',
+                    data: week.days.map(day => day.anger || 0),
+                    backgroundColor: emotionColors.anger,
+                },
+                {
+                    label: 'Fear',
+                    data: week.days.map(day => day.fear || 0),
+                    backgroundColor: emotionColors.fear,
+                },
+            ];
+
+            return {
+                week_start: week.week_start,
+                label: week.label,
+                labels: dayLabels,
+                datasets: datasets
+            };
+        });
+
+        setWeekData(processedWeeks);
+        setWeeks(weeksFromApi.map(week => ({
+            start: week.week_start,
+            label: week.label
+        })));
+
+        // Default to the latest week if available
+        if (processedWeeks.length > 0) {
+            setSelectedWeek(0); 
+        }
+    };
 
     const options = {
         responsive: true,
@@ -153,12 +127,9 @@ const Dashboard = () => {
                     display: false,
                 },
                 beginAtZero: true,
-                max: 24,
                 ticks: {
-                    stepSize: 1, 
-                    callback: (value) => `${value} hr`, 
+                    stepSize: 1,
                 },
-                
             },
         },
         plugins: {
@@ -168,14 +139,18 @@ const Dashboard = () => {
         },
     };
 
-    const [selectedWeek, setSelectedWeek] = useState(0); 
-    const [selectedDay, setSelectedDay] = useState(0); 
-
     // Calculate top 3 emotions for the selected day
     const getTop3Emotions = (weekIndex, dayIndex) => {
+        if (!weekData[weekIndex] || !weekData[weekIndex].datasets) {
+            return {
+                labels: [],
+                datasets: [{ data: [], backgroundColor: [] }]
+            };
+        }
+
         const emotions = weekData[weekIndex].datasets.map((dataset) => ({
             label: dataset.label,
-            value: dataset.data[dayIndex],
+            value: dataset.data[dayIndex] || 0,
         }));
 
         // Sort by value and take the top 3
@@ -194,28 +169,28 @@ const Dashboard = () => {
         };
     };
 
-    const pieData = getTop3Emotions(selectedWeek, selectedDay);
+    const pieData = weekData.length > 0 ? getTop3Emotions(selectedWeek, selectedDay) : { labels: [], datasets: [{ data: [], backgroundColor: [] }] };
 
     const pieOptions = {
         responsive: true,
-    maintainAspectRatio: false,
-    cutout: '60%', // Increases the hole in the center (makes it look more like petals)
-    elements: {
-        arc: {
-            borderWidth: 4, // Gives a soft outline
-            borderColor: '#ffffff', // White border to separate segments
-            spacing: 10, // Adds space between segments to make it look like petals
-        },
-    },
-    plugins: {
-        legend: {
-            display: true,
-            position: 'bottom',
-            labels: {
-                padding: 20,
-                color: '#444', // Soft text color
+        maintainAspectRatio: false,
+        cutout: '60%',
+        elements: {
+            arc: {
+                borderWidth: 4,
+                borderColor: '#ffffff',
+                spacing: 10,
             },
         },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'bottom',
+                labels: {
+                    padding: 20,
+                    color: '#444',
+                },
+            },
             tooltip: {
                 callbacks: {
                     label: (tooltipItem) => {
@@ -227,8 +202,8 @@ const Dashboard = () => {
             },
             centerText: {
                 display: true,
-                text: pieData.labels[0], // Or any dynamic text you'd like
-              },
+                text: pieData.labels[0] || '',
+            },
         },
     };
 
@@ -246,25 +221,26 @@ const Dashboard = () => {
                 let color;
                 switch (options.text) {
                     case 'Happiness':
-                        color = '#F1D04B';  // Yellow
+                        color = emotionColors.happiness;
                         break;
                     case 'Anger':
-                        color = '#FF4B4B';  // Red
+                        color = emotionColors.anger;
                         break;
                     case 'Relaxed':
-                        color = '#4B5563';  // Gray
+                        color = emotionColors.relaxed;
                         break;
                     case 'Fear':
-                        color = '#000000';  // Black
+                        color = emotionColors.fear;
                         break;
                     default:
-                        color = '#FFC702';  // Default color
+                        color = '#FFC702';
                         break;
                 }
     
                 const fontSize = options.fontSize || 30;
-                ctx.font = `${fontSize}px Akronim`;  // You can adjust the font family here
-                ctx.fillStyle = color;  // Apply the color dynamically
+                ctx.font = `${fontSize}px Akronim`;
+
+                ctx.fillStyle = color;
                 ctx.textBaseline = 'middle';
                 
                 const text = options.text;
@@ -273,45 +249,55 @@ const Dashboard = () => {
           
                 ctx.fillText(text, textX, textY);
                 ctx.save();
-                
             }
         }
     };
-    
 
-      ChartJS.register(ArcElement, Tooltip, Legend, centerTextPlugin);
+    ChartJS.register(ArcElement, Tooltip, Legend, centerTextPlugin);
       
     // Prepare data for the line graph (Monthly Emotions)
     const getMonthlyEmotionData = () => {
-        const monthlySums = {};
+        if (weekData.length === 0) {
+            return {
+                labels: [],
+                datasets: []
+            };
+        }
 
-        weekData.forEach((week) => {
-            week.datasets.forEach((dataset) => {
-                if (!monthlySums[dataset.label]) {
-                    monthlySums[dataset.label] = Array(week.labels.length).fill(0);
-                }
-                dataset.data.forEach((value, index) => {
-                    monthlySums[dataset.label][index] = (monthlySums[dataset.label][index] || 0) + value;
-                });
+        // Extract all unique emotion labels from all weeks
+        const allEmotions = new Set();
+        weekData.forEach(week => {
+            week.datasets.forEach(dataset => {
+                allEmotions.add(dataset.label);
             });
         });
-        
+
+        // Prepare data for each emotion across all weeks
+        const datasets = Array.from(allEmotions).map(emotion => {
+            const emotionColor = emotionColors[emotion.toLowerCase()] || '#000';
+            
+            return {
+                label: emotion,
+                data: weekData.map(week => {
+                    const dataset = week.datasets.find(ds => ds.label === emotion);
+                    if (dataset) {
+                        // Sum up the emotion's values for this week
+                        return dataset.data.reduce((sum, value) => sum + value, 0);
+                    }
+                    return 0;
+                }),
+                borderColor: emotionColor,
+                backgroundColor: `${emotionColor}33`,
+                fill: true,
+                tension: 0.3,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+            };
+        });
 
         return {
-            labels: Array.from({ length: 5 }, (_, i) => `Week ${i + 1}`),
-            datasets: Object.entries(monthlySums).map(([emotion, values], index) => {
-                const baseColor = weekData[0].datasets[index]?.backgroundColor || '#000';
-                return {
-                    label: emotion,
-                    data: values,
-                    borderColor: baseColor,
-                    backgroundColor: `${baseColor}33`, // semi-transparent for mountain effect
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                };
-            }),
+            labels: weekData.map((week, index) => week.label || `Week ${index + 1}`),
+            datasets: datasets,
         };
     };
 
@@ -366,7 +352,30 @@ const Dashboard = () => {
             },
         },
     };
-    
+
+    if (loading) {
+        return (
+            <div className="h-full flex items-center justify-center">
+                <p className="text-xl">Loading dashboard data...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="h-full flex items-center justify-center">
+                <p className="text-xl text-red-500">Error: {error}</p>
+            </div>
+        );
+    }
+
+    if (weekData.length === 0) {
+        return (
+            <div className="h-full flex items-center justify-center">
+                <p className="text-xl">No emotion data available. Start tracking your dog's emotions!</p>
+            </div>
+        );
+    }
 
     return (
         <div className="h-full flex flex-col items-center justify-center bg-very-bright-pastel-orange p-5">
@@ -378,19 +387,19 @@ const Dashboard = () => {
             {/* Custom Legend */}
             <div className="flex flex-wrap justify-center items-center gap-4 mt-6">
                 <div className="flex items-center gap-2">
-                    <Dog color="#F1D04B" size={20} />
+                    <Dog color={emotionColors.happiness} size={20} />
                     <span className="text-sm text-yellow-500">Happiness</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Dog color="#FF4B4B" size={20} />
+                    <Dog color={emotionColors.anger} size={20} />
                     <span className="text-sm text-red-500">Anger</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Dog color="#4B5563" size={20} />
+                    <Dog color={emotionColors.relaxed} size={20} />
                     <span className="text-sm text-gray-700">Relaxed</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Dog color="#000000" size={20} />
+                    <Dog color={emotionColors.fear} size={20} />
                     <span className="text-sm text-black-700">Fear</span>
                 </div>
             </div>
@@ -403,31 +412,35 @@ const Dashboard = () => {
                     <select
                         className="block w-full p-2 mb-4 text-center border rounded-md"
                         value={selectedWeek}
-                        onChange={(e) => setSelectedWeek(parseInt(e.target.value))}
+                        onChange={(e) => {
+                            const weekIndex = parseInt(e.target.value);
+                            setSelectedWeek(weekIndex);
+                            setSelectedDay(0); // Reset selected day when changing weeks
+                        }}
                     >
-                        <option value={0}>Week 1 (Day 1 to Day 7)</option>
-                        <option value={1}>Week 2 (Day 8 to Day 14)</option>
-                        <option value={2}>Week 3 (Day 15 to Day 21)</option>
-                        <option value={3}>Week 4 (Day 22 to Day 28)</option>
-                        <option value={4}>Week 5 (Day 29 to Day 31)</option>
+                        {weekData.map((week, index) => (
+                            <option key={week.week_start || index} value={index}>
+                                {week.label || `Week ${index + 1}`}
+                            </option>
+                        ))}
                     </select>
     
                     {/* Bar Graph */}
                     <h2 className="text-2xl font-bold text-center mb-4">Dog Emotion History</h2>
-                    <div className="h-[400px] w-full">
+                    <div className="h-96 w-full">
                         <Bar
                             data={weekData[selectedWeek]}
                             options={{
                                 ...options,
                                 elements: {
                                     bar: {
-                                        borderRadius: 5, // Adjust this value for more or less rounding
+                                        borderRadius: 5,
                                     },
                                 },
                                 onClick: (_, elements) => {
                                     if (elements.length > 0) {
                                         const clickedIndex = elements[0].index;
-                                        setSelectedDay(clickedIndex); // Update the selected day
+                                        setSelectedDay(clickedIndex);
                                     }
                                 },
                             }}
@@ -443,9 +456,11 @@ const Dashboard = () => {
                 <div className="w-full max-w-md mx-auto p-4 bg-white shadow-lg rounded-lg">
                     <h2 className="text-2xl font-bold text-center mb-7 mt-7">Top 3 Emotions</h2>
                     <p className="text-center text-sm mb-5">
-                        <span className="font-semibold">{weekData[selectedWeek].labels[selectedDay]}</span>
+                        <span className="font-semibold">
+                            {weekData[selectedWeek]?.labels[selectedDay] || 'No data'}
+                        </span>
                     </p>
-                    <div style={{ height: '400px', width: '100%' }}>
+                    <div className="h-96 w-full">
                         <Doughnut data={pieData} options={pieOptions} />
                     </div>
                 </div>
@@ -454,13 +469,12 @@ const Dashboard = () => {
             {/* Line Graph */}
             <div className="w-full max-w-4xl mx-auto mt-8 p-4 bg-white shadow-lg rounded-lg">
                 <h2 className="text-2xl font-bold text-center mb-4">Top Emotions Over the Month</h2>
-                <div style={{ height: '400px', width: '100%' }}>
+                <div className="h-96 w-full">
                     <Line data={lineData} options={lineOptions} />
                 </div>
             </div>
         </div>
     );
-    
 };
 
 export default Dashboard;
