@@ -1,8 +1,13 @@
 import { useState } from 'react';
 import PrivacyPolicy from './PrivacyPolicy';
-import '@fortawesome/fontawesome-free/css/all.min.css';
-
-
+import { 
+  Facebook, 
+  Instagram, 
+  Twitter, 
+  ChevronRight, 
+  Dog, 
+  Mail 
+} from 'lucide-react';
 
 const Footer = () => {
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
@@ -62,24 +67,24 @@ const Footer = () => {
             <h5 className="text-lg text-dark-pastel-orange font-bold mb-4">
               Follow Us
             </h5>
-            <div className="flex justify-center md:justify-start space-x-4 text-3xl">
+            <div className="flex justify-center md:justify-start space-x-4">
               <a
                 href="https://facebook.com"
-                className="hover:text-gray-400 hover:transition duration-300"
+                className="hover:text-gray-400 transition duration-300"
               >
-                <i className="fab fa-facebook-f"></i>
+                <Facebook size={24} />
               </a>
               <a
                 href="https://instagram.com"
-                className="hover:text-gray-400 hover:transition duration-300"
+                className="hover:text-gray-400 transition duration-300"
               >
-                <i className="fab fa-instagram"></i>
+                <Instagram size={24} />
               </a>
               <a
                 href="https://twitter.com"
-                className="hover:text-gray-400 hover:transition duration-300"
+                className="hover:text-gray-400 transition duration-300"
               >
-                <i className="fab fa-twitter"></i>
+                <Twitter size={24} />
               </a>
             </div>
           </div>
@@ -91,59 +96,71 @@ const Footer = () => {
             </h4>
             <ul className="space-y-2 flex flex-col font-medium justify-center md:justify-start">
               <li>
-                <i className="fas fa-arrow-right mr-2"></i>
-                <a
-                  href="#home"
-                  className="hover:text-dark-grayish-orange hover:transition duration-300"
-                >
-                  Home
-                </a>
+                <div className="flex items-center">
+                  <ChevronRight size={16} className="mr-1" />
+                  <a
+                    href="#home"
+                    className="hover:text-dark-grayish-orange transition duration-300"
+                  >
+                    Home
+                  </a>
+                </div>
               </li>
               <li>
-                <i className="fas fa-arrow-right mr-2"></i>
-                <a
-                  href="#contact"
-                  className="hover:text-dark-grayish-orange hover:transition duration-300"
-                >
-                  Contact Us
-                </a>
+                <div className="flex items-center">
+                  <ChevronRight size={16} className="mr-1" />
+                  <a
+                    href="#contact"
+                    className="hover:text-dark-grayish-orange transition duration-300"
+                  >
+                    Contact Us
+                  </a>
+                </div>
               </li>
               <li>
-                <i className="fas fa-arrow-right mr-2"></i>
-                <a
-                  href="#about"
-                  className="hover:text-dark-grayish-orange hover:transition duration-300"
-                >
-                  About Us
-                </a>
+                <div className="flex items-center">
+                  <ChevronRight size={16} className="mr-1" />
+                  <a
+                    href="#about"
+                    className="hover:text-dark-grayish-orange transition duration-300"
+                  >
+                    About Us
+                  </a>
+                </div>
               </li>
               <li>
-                <i className="fas fa-arrow-right mr-2"></i>
-                <a
-                  href="#team"
-                  className="hover:text-dark-grayish-orange hover:transition duration-300"
-                >
-                  Our Team
-                </a>
+                <div className="flex items-center">
+                  <ChevronRight size={16} className="mr-1" />
+                  <a
+                    href="#team"
+                    className="hover:text-dark-grayish-orange transition duration-300"
+                  >
+                    Our Team
+                  </a>
+                </div>
               </li>
               <li>
-                <i className="fas fa-arrow-right mr-2"></i>
-                <a
-                  href="#faqs"
-                  className="hover:text-dark-grayish-orange hover:transition duration-300"
-                >
-                  FAQs
-                </a>
+                <div className="flex items-center">
+                  <ChevronRight size={16} className="mr-1" />
+                  <a
+                    href="#faqs"
+                    className="hover:text-dark-grayish-orange transition duration-300"
+                  >
+                    FAQs
+                  </a>
+                </div>
               </li>
               <li>
-                <i className="fas fa-arrow-right mr-2"></i>
-                <a
-                  href="#terms"
-                  className="hover:text-dark-grayish-orange hover:transition duration-300"
-                  onClick={togglePrivacyModal}
-                >
-                  Privacy Policy
-                </a>
+                <div className="flex items-center">
+                  <ChevronRight size={16} className="mr-1" />
+                  <a
+                    href="#terms"
+                    className="hover:text-dark-grayish-orange transition duration-300"
+                    onClick={togglePrivacyModal}
+                  >
+                    Privacy Policy
+                  </a>
+                </div>
               </li>
             </ul>
           </div>
@@ -170,7 +187,7 @@ const Footer = () => {
                     required
                   />
                   <span className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                    <i className="fas fa-dog"></i>
+                    <Dog size={16} />
                   </span>
                 </div>
                 <button
