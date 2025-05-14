@@ -8,15 +8,6 @@ dashboard_bp = Blueprint('dashboard', __name__, url_prefix='/api/dashboard')
 
 @dashboard_bp.route('/save-emotion', methods=['POST'])
 def save_emotion():
-    """
-    Save detected emotion to the database.
-    Expected JSON payload:
-    {
-        "user_id": 123,
-        "emotion": "happy", 
-        "confidence": 92.5
-    }
-    """
     cursor = None  # Initialize cursor to None
     try:
         data = request.get_json()
@@ -57,6 +48,9 @@ def save_emotion():
         week_start_date = today - timedelta(days=today.weekday())
         # Get day of week (1-7, where 1 is Monday)
         day_of_week = today.weekday() + 1
+        
+        # Debug: Print calculated date and day values
+        print(f"Current date: {today}, week_start_date: {week_start_date}, day_of_week: {day_of_week}")
         
         # Connect to DB
         conn = mysql.connection
@@ -107,7 +101,12 @@ def save_emotion():
         
         return jsonify({
             "status": "success", 
-            "message": f"Emotion {emotion} recorded successfully"
+            "message": f"Emotion {emotion} recorded successfully",
+            "debug": {
+                "date": today.strftime('%Y-%m-%d'),
+                "week_start": week_start_date.strftime('%Y-%m-%d'),
+                "day_of_week": day_of_week
+            }
         }), 200
         
     except Exception as e:
@@ -119,7 +118,6 @@ def save_emotion():
     finally:
         if cursor:  # Ensure cursor is not None before closing
             cursor.close()
-
 
 @dashboard_bp.route('/stats', methods=['GET'])
 def get_emotion_stats():

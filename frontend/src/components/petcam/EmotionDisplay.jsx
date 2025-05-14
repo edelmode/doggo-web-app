@@ -21,11 +21,12 @@ export default function EmotionDisplay({
     const [pollingSuccess, setPollingSuccess] = useState(false);
     const [noDogDetected, setNoDogDetected] = useState(false);
     const [lastRecordedEmotion, setLastRecordedEmotion] = useState(null);
+    const [lastRecordedDate, setLastRecordedDate] = useState(null);
 
     // Configuration with environment-specific settings
     const CONFIG = {
         // Replace with your actual backend URL or use environment variables
-        socketUrl: 'http://192.168.1.229:5000',
+        socketUrl: 'http://192.168.1.140:5000',
         pollingEndpoint: '/get_current_emotion',
         maxSocketAttempts: 3,
         socketTimeout: 5000, // 5 seconds
@@ -220,17 +221,16 @@ export default function EmotionDisplay({
                 return;
             }
 
+            // Current datetime for debugging/display
+            const now = new Date();
+            const formattedDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+            
             console.log('Recording emotion to database:', {
                 emotion: emotionData.class,
                 confidence: emotionData.confidence,
-                userId: userId
+                userId: userId,
+                date: formattedDate
             });
-
-            // Calculate current date information for our new schema
-            const now = new Date();
-            const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
-            // Convert to 1-7 where 1 is Monday (ISO weekday)
-            const dayOfWeek = currentDay === 0 ? 7 : currentDay;
             
             // Log the payload for debugging
             const payload = {
@@ -240,7 +240,7 @@ export default function EmotionDisplay({
             };
             console.log('Sending payload to server:', payload);
             
-            const response = await fetch('http://localhost:3001/api/dashboard/save-emotion', {
+            const response = await fetch('https://testdockerbackend.azurewebsites.net/api/dashboard/save-emotion', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -259,6 +259,8 @@ export default function EmotionDisplay({
                 ...emotionData,
                 timestamp: Date.now()
             });
+            
+            setLastRecordedDate(formattedDate);
 
         } catch (error) {
             console.error('Error recording emotion to database:', error);
@@ -319,6 +321,7 @@ export default function EmotionDisplay({
                 {lastRecordedEmotion && (
                     <div className="text-xs text-gray-500 mt-1">
                         Last recorded: {lastRecordedEmotion.class} at {new Date(lastRecordedEmotion.timestamp).toLocaleTimeString()}
+                        {lastRecordedDate && <span> on {lastRecordedDate}</span>}
                     </div>
                 )}
             </div>

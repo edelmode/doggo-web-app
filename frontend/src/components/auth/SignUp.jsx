@@ -82,7 +82,7 @@ export default function SignUp({ toggleModal, openSignInModal, openTermsModal })
                 petAge: parseInt(formData.petAge, 10) || 0 // Convert to integer or default to 0
             };
             
-            const response = await fetch('http://localhost:3001/api/auth/register', {
+            const response = await fetch('https://testdockerbackend.azurewebsites.net/api/auth/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ export default function SignUp({ toggleModal, openSignInModal, openTermsModal })
         
         setIsLoading(true);
         try {
-            const response = await fetch('http://localhost:3001/api/auth/send-verification', {
+            const response = await fetch('https://testdockerbackend.azurewebsites.net/api/auth/send-verification', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
