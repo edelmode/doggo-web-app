@@ -119,6 +119,8 @@ const UserDetails = () => {
       setError("User not logged in");
       return;
     }
+    
+    setLoading(true); // Show loading while saving changes
   
     try {
       if (selectedFile) {
@@ -150,20 +152,29 @@ const UserDetails = () => {
       setIsEditing(false);
     } catch (error) {
       setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
   
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="w-full p-8 h-screen bg-very-bright-pastel-orange">
+        <div className="flex justify-center items-center h-40 mt-10">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-dark-pastel-orange"></div>
+          <p className="ml-3">Loading profile data...</p>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-red-500">{error}</div>;
+    return <div className="w-full p-8 h-screen bg-very-bright-pastel-orange mt-20 text-red-500">{error}</div>;
   }
 
   if (!userDetails) {
-    return <div>No user details available.</div>;
+    return <div className="w-full p-8 h-screen bg-very-bright-pastel-orange mt-20">No user details available.</div>;
   }
 
   const { name, pet_name, contact_number, pet_info } = userDetails;
@@ -220,6 +231,7 @@ const UserDetails = () => {
             <button
               onClick={handleEditToggle}
               className="ml-auto text-blue-500 hover:underline"
+              disabled={loading}
             >
               {isEditing ? "Cancel" : "Edit"}
             </button>
@@ -290,8 +302,9 @@ const UserDetails = () => {
             <button
               onClick={handleSave}
               className="text-blue-500 hover:underline mt-4"
+              disabled={loading}
             >
-              Save
+              {loading ? 'Saving...' : 'Save'}
             </button>
           )}
         </section>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import 'chart.js/auto';
-import { Dog } from 'lucide-react';
+import { Dog, Loader2 } from 'lucide-react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
 const Dashboard = () => {
@@ -355,24 +355,39 @@ const Dashboard = () => {
 
     if (loading) {
         return (
-            <div className="h-full flex items-center justify-center">
-                <p className="text-xl">Loading dashboard data...</p>
+            <div className="w-full p-8 h-screen bg-very-bright-pastel-orange">
+                <div className="flex justify-center items-center h-40 mt-10">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-dark-pastel-orange"></div>
+                <p className="ml-3">Loading dashboard data...</p>
+                </div>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="h-full flex items-center justify-center">
-                <p className="text-xl text-red-500">Error: {error}</p>
+            <div className="h-full flex items-center justify-center bg-very-bright-pastel-orange p-5">
+                <div className="bg-white rounded-lg shadow-lg p-8">
+                    <p className="text-xl text-red-500 font-medium">Error: {error}</p>
+                    <button 
+                        className="mt-4 px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors"
+                        onClick={() => window.location.reload()}
+                    >
+                        Try Again
+                    </button>
+                </div>
             </div>
         );
     }
 
     if (weekData.length === 0) {
         return (
-            <div className="h-full flex items-center justify-center">
-                <p className="text-xl">No emotion data available. Start tracking your dog's emotions!</p>
+            <div className="h-full flex items-center justify-center bg-very-bright-pastel-orange p-5">
+                <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+                    <Dog className="w-16 h-16 mx-auto text-amber-500" />
+                    <p className="text-xl mt-4">No emotion data available.</p>
+                    <p className="mt-2 text-gray-600">Start tracking your dog's emotions!</p>
+                </div>
             </div>
         );
     }

@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CircleUser, LogOut, BookOpen, User } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false); 
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false); 
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isSigningOut, setIsSigningOut] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -21,7 +21,10 @@ export default function Navbar() {
     };
 
     const handleSignOutClick = () => {
-        // Clear all auth-related items from localStorage
+        // Show loading spinner
+        setIsSigningOut(true);
+        
+        // First clear all auth-related items from localStorage
         localStorage.removeItem("token");
         localStorage.removeItem("refresh_token");
         localStorage.removeItem("user_id");
@@ -29,19 +32,45 @@ export default function Navbar() {
         // Force re-render of other components listening to storage events
         window.dispatchEvent(new Event("storage"));
         
-        // Use replace to prevent going back to protected routes
-        navigate("/", { replace: true });
-      };
+        // Navigate to root with replace: true to prevent going back to protected routes
+        // Add a small delay to show the loading indicator and ensure state updates finish before navigation
+        setTimeout(() => {
+            navigate("/", { replace: true });
+            // We could reset isSigningOut here, but it's not necessary since component unmounts
+        }, 800); // Short delay for better UX
+    };
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (isDropdownOpen && !event.target.closest('.dropdown-container')) {
+                setIsDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isDropdownOpen]);
 
     return (
-        <nav className="fixed w-full flex items-center justify-between px-5 lg:px-20 bg-white shadow-md z-50">
-            {/* Logo Section */}
-            <div className="flex items-center h-14 max-w-full">
-                    <div className="flex items-center h-14 max-w-full">
-                        <img src="/favicon.png" alt="Website Logo" className="w-11 h-11" />
-                        <p className="pl-5 text-3xl text-dark-pastel-orange font-extrabold">DOGGO</p>
+        <>
+            {isSigningOut && (
+                <div className="fixed inset-0 bg-white bg-opacity-80 z-50 flex flex-col items-center justify-center">
+                    <div className="flex justify-center items-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-dark-pastel-orange"></div>
+                        <p className="ml-3 text-lg font-medium text-gray-700">Signing out...</p>
                     </div>
-                
+                </div>
+            )}
+            <nav className="fixed w-full flex items-center justify-between px-5 lg:px-20 bg-white shadow-md z-40">
+                {/* Logo Section */}
+            <div className="flex items-center h-14 max-w-full">
+                <div className="flex items-center h-14 max-w-full">
+                    <img src="/favicon.png" alt="Website Logo" className="w-11 h-11" />
+                    <p className="pl-5 text-3xl text-dark-pastel-orange font-extrabold">DOGGO</p>
+                </div>
             </div>
 
             {/* Desktop Menu */}
@@ -66,7 +95,7 @@ export default function Navbar() {
                         Dashboard
                     </button>
                 </li>
-                <li>
+                {/* <li>
                     <button
                         className={`font-medium hover:text-dark-grayish-orange transition duration-300 ${
                             isActive("/fetching-page") ? "text-dark-pastel-orange font-semibold" : ""
@@ -75,7 +104,7 @@ export default function Navbar() {
                     >
                         Fetching Device
                     </button>
-                </li>
+                </li> */}
                 <li>
                     <button
                         className={`font-medium hover:text-dark-grayish-orange transition duration-300 ${
@@ -86,7 +115,7 @@ export default function Navbar() {
                         Gallery
                     </button>
                 </li>
-                <li className="relative">
+                <li className="relative dropdown-container">
                     <button onClick={toggleDropdown} className={`font-medium hover:text-dark-grayish-orange transition duration-300 ${
                             isActive("/account") ? "text-dark-pastel-orange font-semibold" : ""
                         }`}>
@@ -97,8 +126,8 @@ export default function Navbar() {
                             <ul className="py-2 text-sm text-gray-600 text-md font-medium">
                                 <li>
                                     <button
-                                        onClick={(e) => {
-                                            e.preventDefault();
+                                        onClick={() => {
+                                            setIsDropdownOpen(false);
                                             handleNavigation("/account");
                                         }}
                                         className="flex px-4 py-2 hover:text-yellow"
@@ -115,10 +144,7 @@ export default function Navbar() {
                                 </li>
                                 <li>
                                     <button
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            handleSignOutClick();
-                                        }}
+                                        onClick={handleSignOutClick}
                                         className="flex px-4 py-2 hover:text-yellow"
                                     >
                                         <LogOut className="h-5 w-5 mr-2" /> Sign out
@@ -163,7 +189,7 @@ export default function Navbar() {
                             Dashboard
                         </button>
                     </li>
-                    <li>
+                    {/* <li>
                         <button
                             className={`font-medium hover:text-yellow transition duration-300 ${
                                 isActive("/fetching-page") ? "text-black font-semibold" : ""
@@ -172,7 +198,7 @@ export default function Navbar() {
                         >
                             Fetching Device
                         </button>
-                    </li>
+                    </li> */}
                     <li>
                         <button
                             className={`font-medium hover:text-yellow transition duration-300 ${
@@ -182,8 +208,6 @@ export default function Navbar() {
                         >
                             Gallery
                         </button>
-                        
-                    
                     </li>
                     <hr className="border-t border-black w-3/4" />
                     <li>
@@ -195,32 +219,25 @@ export default function Navbar() {
                         >
                             My Account
                         </button>
-                    
                     </li>
                     <li>
                         <button
-                            className={`font-medium hover:text-yellow transition duration-300 ${
-                                isActive("/gallery-page") ? "text-black font-semibold" : ""
-                            }`}
+                            className="font-medium hover:text-yellow transition duration-300"
                         >
                             Manual
                         </button>
-                    
                     </li>
                     <li>
                         <button
-                            onClick={(e) => {
-                                e.preventDefault();
-                                handleSignOutClick();
-                            }}
+                            onClick={handleSignOutClick}
                             className="flex px-4 py-2 text-red-600 hover:text-yellow"
                         >
                             Sign Out
                         </button>
-                    
                     </li>
                 </ul>
             )}
         </nav>
+        </>
     );
 }
