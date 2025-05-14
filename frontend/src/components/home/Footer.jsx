@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import PrivacyPolicy from './PrivacyPolicy';
-import 'font-awesome/css/font-awesome.min.css';
+import 'fortawesome/css/fortawesome.min.css';
 
 
 const Footer = () => {
