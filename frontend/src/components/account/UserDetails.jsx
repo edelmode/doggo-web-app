@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import dog from '../../assets/dog.jpg';
+import ManualModal from './manualModal'; // Update this path as needed
+import { useLocation } from 'react-router-dom';
 
 const UserDetails = () => {
   const [userDetails, setUserDetails] = useState(null);
@@ -8,6 +10,16 @@ const UserDetails = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [profilePicture, setProfilePicture] = useState(dog);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [showManualModal, setShowManualModal] = useState(false);
+  
+  // Videos for the manual modal - replace with your actual tutorial videos
+  const tutorialVideos = [
+    "/path/to/tutorial1.mp4",
+    "/path/to/tutorial2.mp4",
+    "/path/to/tutorial3.mp4"
+  ];
+
+  const location = useLocation();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -19,6 +31,9 @@ const UserDetails = () => {
   });
 
   useEffect(() => {
+    // Check if user was redirected from login due to missing profile picture
+    const fromLogin = location.state?.fromLogin === true;
+    
     const fetchUserDetails = async () => {
       const user_id = localStorage.getItem("user_id");
 
@@ -60,6 +75,11 @@ const UserDetails = () => {
           setProfilePicture(data.file_path);
         }
 
+        // Show manual modal ONLY if the user was redirected from login AND has no profile picture
+        if (fromLogin && !data.file_path) {
+          setShowManualModal(true);
+        }
+
         setLoading(false);
       } catch (error) {
         setError(error.message);
@@ -68,7 +88,7 @@ const UserDetails = () => {
     };
 
     fetchUserDetails();
-  }, []);
+  }, [location.state]);
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
@@ -157,6 +177,9 @@ const UserDetails = () => {
     }
   };
   
+  const closeManualModal = () => {
+    setShowManualModal(false);
+  };
 
   if (loading) {
     return (
@@ -309,6 +332,13 @@ const UserDetails = () => {
           )}
         </section>
       </main>
+      
+      {/* Manual Modal appears conditionally */}
+      <ManualModal 
+        isOpen={showManualModal} 
+        onClose={closeManualModal} 
+        videos={tutorialVideos} 
+      />
     </div>
   );
 };

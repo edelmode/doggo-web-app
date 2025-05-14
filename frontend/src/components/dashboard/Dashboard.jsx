@@ -9,7 +9,6 @@ const Dashboard = () => {
     const [selectedWeek, setSelectedWeek] = useState(0);
     const [selectedDay, setSelectedDay] = useState(0);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [weeks, setWeeks] = useState([]);
 
     // Color constants for emotions
@@ -32,24 +31,30 @@ const Dashboard = () => {
                 const response = await fetch(`http://localhost:3001/api/dashboard/weekly-summary?user_id=${userId}`);
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                    console.warn(`HTTP error! Status: ${response.status}`);
+                    // Instead of throwing error, just set empty data
+                    setWeekData(getEmptyData());
+                    return;
                 }
                 
                 const contentType = response.headers.get('content-type');
                 if (!contentType || !contentType.includes('application/json')) {
-                    throw new Error('Response is not JSON. Check API URL and endpoint.');
+                    console.warn('Response is not JSON. Check API URL and endpoint.');
+                    setWeekData(getEmptyData());
+                    return;
                 }
                 
                 const result = await response.json();
                 
-                if (result.status === 'success' && result.weeks) {
+                if (result.status === 'success' && result.weeks && result.weeks.length > 0) {
                     processWeeklyData(result.weeks);
                 } else {
-                    setError('Failed to load data: ' + (result.message || 'Unknown error'));
+                    console.warn('No data available or invalid format');
+                    setWeekData(getEmptyData());
                 }
             } catch (err) {
                 console.error('Error fetching weekly summary:', err);
-                setError(err.message);
+                setWeekData(getEmptyData());
             } finally {
                 setLoading(false);
             }
@@ -58,10 +63,43 @@ const Dashboard = () => {
         fetchWeeklySummary();
     }, [userId]);
 
+    // Create empty data structure for when no data is available
+    const getEmptyData = () => {
+        const emptyWeek = {
+            week_start: new Date().toISOString(),
+            label: 'This Week',
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [
+                {
+                    label: 'Happiness',
+                    data: [0, 0, 0, 0, 0, 0, 0],
+                    backgroundColor: emotionColors.happiness,
+                },
+                {
+                    label: 'Relaxed',
+                    data: [0, 0, 0, 0, 0, 0, 0],
+                    backgroundColor: emotionColors.relaxed,
+                },
+                {
+                    label: 'Anger',
+                    data: [0, 0, 0, 0, 0, 0, 0],
+                    backgroundColor: emotionColors.anger,
+                },
+                {
+                    label: 'Fear',
+                    data: [0, 0, 0, 0, 0, 0, 0],
+                    backgroundColor: emotionColors.fear,
+                }
+            ]
+        };
+        
+        return [emptyWeek];
+    };
+
     // Process weekly data from API into chart.js format
     const processWeeklyData = (weeksFromApi) => {
         if (!weeksFromApi || weeksFromApi.length === 0) {
-            setError('No data available.');
+            setWeekData(getEmptyData());
             return;
         }
 
@@ -143,8 +181,11 @@ const Dashboard = () => {
     const getTop3Emotions = (weekIndex, dayIndex) => {
         if (!weekData[weekIndex] || !weekData[weekIndex].datasets) {
             return {
-                labels: [],
-                datasets: [{ data: [], backgroundColor: [] }]
+                labels: ['No Data'],
+                datasets: [{ 
+                    data: [1], 
+                    backgroundColor: ['#e2e2e2']
+                }]
             };
         }
 
@@ -155,6 +196,17 @@ const Dashboard = () => {
 
         // Sort by value and take the top 3
         const top3 = emotions.sort((a, b) => b.value - a.value).slice(0, 3);
+        
+        // If all values are 0, show a placeholder
+        if (top3.every(emotion => emotion.value === 0)) {
+            return {
+                labels: ['No Data Available'],
+                datasets: [{ 
+                    data: [1], 
+                    backgroundColor: ['#e2e2e2']
+                }]
+            };
+        }
 
         return {
             labels: top3.map((emotion) => emotion.label),
@@ -169,7 +221,10 @@ const Dashboard = () => {
         };
     };
 
-    const pieData = weekData.length > 0 ? getTop3Emotions(selectedWeek, selectedDay) : { labels: [], datasets: [{ data: [], backgroundColor: [] }] };
+    const pieData = weekData.length > 0 ? getTop3Emotions(selectedWeek, selectedDay) : { 
+        labels: ['No Data Available'], 
+        datasets: [{ data: [1], backgroundColor: ['#e2e2e2'] }] 
+    };
 
     const pieOptions = {
         responsive: true,
@@ -196,13 +251,14 @@ const Dashboard = () => {
                     label: (tooltipItem) => {
                         const emotion = tooltipItem.raw;
                         const label = pieData.labels[tooltipItem.dataIndex];
+                        if (label === 'No Data Available') return label;
                         return `${label}: ${emotion}`;
                     },
                 },
             },
             centerText: {
                 display: true,
-                text: pieData.labels[0] || '',
+                text: pieData.labels[0] === 'No Data Available' ? '' : pieData.labels[0] || '',
             },
         },
     };
@@ -259,8 +315,49 @@ const Dashboard = () => {
     const getMonthlyEmotionData = () => {
         if (weekData.length === 0) {
             return {
-                labels: [],
-                datasets: []
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [
+                    {
+                        label: 'Happiness',
+                        data: [0, 0, 0, 0],
+                        borderColor: emotionColors.happiness,
+                        backgroundColor: `${emotionColors.happiness}33`,
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                    },
+                    {
+                        label: 'Relaxed',
+                        data: [0, 0, 0, 0],
+                        borderColor: emotionColors.relaxed,
+                        backgroundColor: `${emotionColors.relaxed}33`,
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                    },
+                    {
+                        label: 'Anger',
+                        data: [0, 0, 0, 0],
+                        borderColor: emotionColors.anger,
+                        backgroundColor: `${emotionColors.anger}33`,
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                    },
+                    {
+                        label: 'Fear',
+                        data: [0, 0, 0, 0],
+                        borderColor: emotionColors.fear,
+                        backgroundColor: `${emotionColors.fear}33`,
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                    }
+                ]
             };
         }
 
@@ -364,34 +461,6 @@ const Dashboard = () => {
         );
     }
 
-    if (error) {
-        return (
-            <div className="h-full flex items-center justify-center bg-very-bright-pastel-orange p-5">
-                <div className="bg-white rounded-lg shadow-lg p-8">
-                    <p className="text-xl text-red-500 font-medium">Error: {error}</p>
-                    <button 
-                        className="mt-4 px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors"
-                        onClick={() => window.location.reload()}
-                    >
-                        Try Again
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
-    if (weekData.length === 0) {
-        return (
-            <div className="h-full flex items-center justify-center bg-very-bright-pastel-orange p-5">
-                <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-                    <Dog className="w-16 h-16 mx-auto text-amber-500" />
-                    <p className="text-xl mt-4">No emotion data available.</p>
-                    <p className="mt-2 text-gray-600">Start tracking your dog's emotions!</p>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="h-full flex flex-col items-center justify-center bg-very-bright-pastel-orange p-5">
             {/* Logo Section */}
@@ -443,23 +512,31 @@ const Dashboard = () => {
                     {/* Bar Graph */}
                     <h2 className="text-2xl font-bold text-center mb-4">Dog Emotion History</h2>
                     <div className="h-96 w-full">
-                        <Bar
-                            data={weekData[selectedWeek]}
-                            options={{
-                                ...options,
-                                elements: {
-                                    bar: {
-                                        borderRadius: 5,
+                        {weekData.length > 0 ? (
+                            <Bar
+                                data={weekData[selectedWeek]}
+                                options={{
+                                    ...options,
+                                    elements: {
+                                        bar: {
+                                            borderRadius: 5,
+                                        },
                                     },
-                                },
-                                onClick: (_, elements) => {
-                                    if (elements.length > 0) {
-                                        const clickedIndex = elements[0].index;
-                                        setSelectedDay(clickedIndex);
-                                    }
-                                },
-                            }}
-                        />
+                                    onClick: (_, elements) => {
+                                        if (elements.length > 0) {
+                                            const clickedIndex = elements[0].index;
+                                            setSelectedDay(clickedIndex);
+                                        }
+                                    },
+                                }}
+                            />
+                        ) : (
+                            <div className="flex flex-col items-center justify-center h-full">
+                                <Dog className="w-12 h-12 text-amber-500 mb-2" />
+                                <p className="text-gray-500">No emotion data available</p>
+                                <p className="text-sm text-gray-400">Charts will update when data is recorded</p>
+                            </div>
+                        )}
                     </div>
     
                     <p className="text-center text-gray-500 mt-2">
@@ -472,7 +549,9 @@ const Dashboard = () => {
                     <h2 className="text-2xl font-bold text-center mb-7 mt-7">Top 3 Emotions</h2>
                     <p className="text-center text-sm mb-5">
                         <span className="font-semibold">
-                            {weekData[selectedWeek]?.labels[selectedDay] || 'No data'}
+                            {weekData.length > 0 && weekData[selectedWeek]?.labels ? 
+                                weekData[selectedWeek].labels[selectedDay] || 'Select a day' : 
+                                'No data available'}
                         </span>
                     </p>
                     <div className="h-96 w-full">
@@ -487,6 +566,11 @@ const Dashboard = () => {
                 <div className="h-96 w-full">
                     <Line data={lineData} options={lineOptions} />
                 </div>
+                {weekData.length === 0 && (
+                    <p className="text-center text-gray-500 mt-4">
+                        No data available. Monthly emotions will be displayed when data is recorded.
+                    </p>
+                )}
             </div>
         </div>
     );

@@ -1,13 +1,24 @@
 import { useState, useEffect } from 'react';
 import { CircleUser, LogOut, BookOpen, User } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import ManualModal from '../account/manualModal'; // Import your existing ManualModal
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false); 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isSigningOut, setIsSigningOut] = useState(false);
+    const [showManual, setShowManual] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+
+    // Tutorial videos for the manual
+    const manualVideos = [
+        "/videos/getting-started.mp4", 
+        "/videos/pet-cam-tutorial.mp4",
+        "/videos/dashboard-tutorial.mp4",
+        "/videos/gallery-tutorial.mp4",
+        "/videos/account-management.mp4"
+    ];
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
@@ -18,6 +29,12 @@ export default function Navbar() {
     const handleNavigation = (path) => {
         setIsOpen(false);
         navigate(path);
+    };
+
+    const handleOpenManual = () => {
+        setShowManual(true);
+        setIsDropdownOpen(false); // Close dropdown when opening manual
+        setIsOpen(false); // Close mobile menu when opening manual
     };
 
     const handleSignOutClick = () => {
@@ -56,6 +73,13 @@ export default function Navbar() {
 
     return (
         <>
+            {/* Manual Modal */}
+            <ManualModal 
+                isOpen={showManual} 
+                onClose={() => setShowManual(false)} 
+                videos={manualVideos} 
+            />
+
             {isSigningOut && (
                 <div className="fixed inset-0 bg-white bg-opacity-80 z-50 flex flex-col items-center justify-center">
                     <div className="flex justify-center items-center">
@@ -95,16 +119,6 @@ export default function Navbar() {
                         Dashboard
                     </button>
                 </li>
-                {/* <li>
-                    <button
-                        className={`font-medium hover:text-dark-grayish-orange transition duration-300 ${
-                            isActive("/fetching-page") ? "text-dark-pastel-orange font-semibold" : ""
-                        }`}
-                        onClick={() => handleNavigation("/fetching-page")}
-                    >
-                        Fetching Device
-                    </button>
-                </li> */}
                 <li>
                     <button
                         className={`font-medium hover:text-dark-grayish-orange transition duration-300 ${
@@ -137,6 +151,7 @@ export default function Navbar() {
                                 </li>
                                 <li>
                                     <button
+                                        onClick={handleOpenManual}
                                         className="flex px-4 py-2 hover:text-yellow"
                                     >
                                         <BookOpen className="h-5 w-5 mr-2" /> Manual
@@ -189,16 +204,6 @@ export default function Navbar() {
                             Dashboard
                         </button>
                     </li>
-                    {/* <li>
-                        <button
-                            className={`font-medium hover:text-yellow transition duration-300 ${
-                                isActive("/fetching-page") ? "text-black font-semibold" : ""
-                            }`}
-                            onClick={() => handleNavigation("/fetching-page")}
-                        >
-                            Fetching Device
-                        </button>
-                    </li> */}
                     <li>
                         <button
                             className={`font-medium hover:text-yellow transition duration-300 ${
@@ -222,6 +227,7 @@ export default function Navbar() {
                     </li>
                     <li>
                         <button
+                            onClick={handleOpenManual}
                             className="font-medium hover:text-yellow transition duration-300"
                         >
                             Manual

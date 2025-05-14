@@ -78,8 +78,32 @@ export default function SignIn({ toggleModal, openSignUpModal, openForgotPassMod
                     localStorage.removeItem('savedEmail');
                 }
     
-                // Redirect to the fetching page after login
-                navigate('/petcam-page');
+                // Check if this is the first login for the user
+                const profileResponse = await fetch(`http://localhost:3001/api/user/user-details?user_id=${data.id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!profileResponse.ok) {
+                    // Navigate to account with state indicating this is from login
+                    navigate('/account', { state: { fromLogin: true } });
+                } else {
+                    const profileData = await profileResponse.json();
+                    console.log("Profile Data:", profileData);
+                    const hasProfilePicture = profileData.file_path;
+                    
+                    if (!hasProfilePicture) {
+                        console.log("Incomplete profile, redirecting to account page");
+                        // Navigate to account with state indicating this is from login
+                        navigate('/account', { state: { fromLogin: true } });
+                    } else {
+                        // Profile is complete with profile picture, redirect to petcam page
+                        console.log("Complete profile, redirecting to petcam page");
+                        navigate('/petcam-page');
+                    }
+                }
             } else {
                 setError("Something went wrong. No token received.");
             }
