@@ -16,43 +16,17 @@ export default function Camera() {
     const [savedPhotoUrl, setSavedPhotoUrl] = useState(null);
     const [isSavingVideo, setIsSavingVideo] = useState(false);
     const [savedVideoUrl, setSavedVideoUrl] = useState(null);
-    const [isVercelDeployment, setIsVercelDeployment] = useState(false);
     
     // Form data state (simplified for this example)
     const [formData, setFormData] = useState({
         pet_name: "pet"
     });
-
-    // Check if we're running in HTTPS environment
-    const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
     
-    // Allow user to set the Pi IP manually if needed
-    const [piIpAddress, setPiIpAddress] = useState('192.168.1.140');
+    // Pi Camera Stream URL - replace with your Raspberry Pi's IP address
+    const [piCameraUrl, setPiCameraUrl] = useState('http://192.168.1.140:5000/video_feed');
     
-    // Set up URLs based on environment
-    const [piCameraUrl, setPiCameraUrl] = useState(() => {
-        if (isHttps) {
-            // Use relative URL if we're in HTTPS to avoid mixed content
-            return `/api/video-feed?cache=${Date.now()}`;
-        } else {
-            return `http://${piIpAddress}:5000/video_feed?cache=${Date.now()}`;
-        }
-    });
-    
-    const piControlUrl = isHttps 
-        ? '/api' // Use relative URL for API calls in HTTPS
-        : `http://${piIpAddress}:5000`;
-    
-    // Show warning if we're using HTTPS but don't have a proxy set up
-    const [proxyWarning, setProxyWarning] = useState(false);
-    
-    useEffect(() => {
-        if (isHttps) {
-            // Always set proxy warning to true for Vercel deployment since we 
-// know the proxy endpoints don't exist yet
-            setProxyWarning(true);
-        }
-    }, [isHttps]);
+    // Pi control endpoints
+    const piControlUrl = 'http://192.168.1.140:5000';
     
     // Handle connecting issues
     useEffect(() => {
@@ -473,11 +447,7 @@ export default function Camera() {
         setError(null);
         setLoading(true);
         // Force reload by adding timestamp to URL
-        if (isVercelDeployment || !isHttps) {
-            setPiCameraUrl(`http://${piIpAddress}:5000/video_feed?cache=${Date.now()}`);
-        } else {
-            setPiCameraUrl(`/api/video-feed?ip=${piIpAddress}&cache=${Date.now()}`);
-        }
+        setPiCameraUrl(`http://192.168.1.140:5000/video_feed?cache=${Date.now()}`);
     };
     
     // Handle image load error
@@ -492,65 +462,8 @@ export default function Camera() {
         setError(null);
     };
 
-    // Handle IP address change
-    const handleIpChange = (e) => {
-        setPiIpAddress(e.target.value);
-    };
-    
-    // Update connection with new IP
-    const updateConnection = () => {
-        setError(null);
-        setLoading(true);
-        
-        // Update URLs with new IP
-        if (isVercelDeployment || !isHttps) {
-            setPiCameraUrl(`http://${piIpAddress}:5000/video_feed?cache=${Date.now()}`);
-        } else {
-            setPiCameraUrl(`/api/video-feed?ip=${piIpAddress}&cache=${Date.now()}`);
-        }
-    };
-
     return (
         <div className="text-black bg-very-bright-pastel-orange bg-cover bg-center min-h-screen items-center px-5 sm:px-20 py-8 font-montserrat">
-            {proxyWarning && (
-                <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mb-4" role="alert">
-                    <strong className="font-bold">Connection Warning: </strong>
-                    <span className="block sm:inline">
-                        {isVercelDeployment ? 
-                            "This app is hosted on Vercel and cannot directly connect to your Raspberry Pi camera. Please enter your Pi's IP address and ensure it's accessible from your network." :
-                            "Your site is running on HTTPS but trying to access an HTTP camera feed. Set up a proxy server or use HTTPS on your Raspberry Pi."
-                        }
-                    </span>
-                </div>
-            )}
-            
-            <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Raspberry Pi IP Address:
-                </label>
-                <div className="flex flex-wrap">
-                    <input
-                        type="text"
-                        value={piIpAddress}
-                        onChange={handleIpChange}
-                        className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mr-2 mb-2 sm:mb-0"
-                        placeholder="Enter your Pi's IP address"
-                    />
-                    <button 
-                        onClick={updateConnection}
-                        className="bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded px-4"
-                    >
-                        Connect
-                    </button>
-                </div>
-                {isVercelDeployment && (
-                    <p className="text-sm text-gray-600 mt-2">
-                        Your Pi's IP must be accessible from your current network. 
-                        This connection will only work on your local network.
-                    </p>
-                )}
-            </div>
-
             <div className="justify flex flex-col lg:flex-row w-full overflow-x-hidden gap-7">
                 <div className="relative inline-block mt-6 w-full ">
                     {error && (
