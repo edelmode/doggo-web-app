@@ -16,6 +16,7 @@ export default function Camera() {
     const [savedPhotoUrl, setSavedPhotoUrl] = useState(null);
     const [isSavingVideo, setIsSavingVideo] = useState(false);
     const [savedVideoUrl, setSavedVideoUrl] = useState(null);
+    const [isVercelDeployment, setIsVercelDeployment] = useState(false);
     
     // Form data state (simplified for this example)
     const [formData, setFormData] = useState({
