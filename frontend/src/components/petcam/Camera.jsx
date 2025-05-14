@@ -23,10 +23,10 @@ export default function Camera() {
     });
     
     // Pi Camera Stream URL - replace with your Raspberry Pi's IP address
-    const [piCameraUrl, setPiCameraUrl] = useState('http://192.168.1.229:5000/video_feed');
+    const [piCameraUrl, setPiCameraUrl] = useState('http://192.168.1.140:5000/video_feed');
     
     // Pi control endpoints
-    const piControlUrl = 'http://192.168.1.229:5000';
+    const piControlUrl = 'http://192.168.1.140:5000';
     
     // Handle connecting issues
     useEffect(() => {
@@ -178,7 +178,7 @@ export default function Camera() {
             }
             
 
-            const backendResponse = await fetch('http://localhost:3001/api/gallery/save-photo', {
+            const backendResponse = await fetch('https://testdockerbackend.azurewebsites.net/api/gallery/save-photo', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -379,7 +379,7 @@ export default function Camera() {
             }
             
             // Now upload to Azure via backend server with the actual file
-            const backendResponse = await fetch('http://localhost:3001/api/camera/gallery/save-video', {
+            const backendResponse = await fetch('https://testdockerbackend.azurewebsites.net/api/camera/gallery/save-video', {
                 method: 'POST',
                 body: formDataObj 
             });
@@ -447,7 +447,7 @@ export default function Camera() {
         setError(null);
         setLoading(true);
         // Force reload by adding timestamp to URL
-        setPiCameraUrl(`http://192.168.1.229:5000/video_feed?cache=${Date.now()}`);
+        setPiCameraUrl(`http://192.168.1.140:5000/video_feed?cache=${Date.now()}`);
     };
     
     // Handle image load error

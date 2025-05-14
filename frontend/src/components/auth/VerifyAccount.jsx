@@ -19,7 +19,7 @@ export default function VerifyAccount() {
 
         const verifyAccount = async () => {
             try {
-                const response = await fetch(`http://localhost:3001/api/auth/verify-account?token=${token}`, {
+                const response = await fetch(`https://testdockerbackend.azurewebsites.net/api/auth/verify-account?token=${token}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

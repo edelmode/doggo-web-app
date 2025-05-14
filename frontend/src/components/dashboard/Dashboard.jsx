@@ -28,7 +28,7 @@ const Dashboard = () => {
             setLoading(true);
             try {
                 // Set correct URL based on deployment environment
-                const response = await fetch(`http://localhost:3001/api/dashboard/weekly-summary?user_id=${userId}`);
+                const response = await fetch(`https://testdockerbackend.azurewebsites.net/api/dashboard/weekly-summary?user_id=${userId}`);
                 
                 if (!response.ok) {
                     console.warn(`HTTP error! Status: ${response.status}`);

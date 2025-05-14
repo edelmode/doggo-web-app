@@ -48,7 +48,7 @@ export default function SignIn({ toggleModal, openSignUpModal, openForgotPassMod
     
         try {
             // Send login request to backend
-            const response = await fetch('http://localhost:3001/api/auth/login', {
+            const response = await fetch('https://testdockerbackend.azurewebsites.net/api/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ export default function SignIn({ toggleModal, openSignUpModal, openForgotPassMod
                 }
     
                 // Check if this is the first login for the user
-                const profileResponse = await fetch(`http://localhost:3001/api/user/user-details?user_id=${data.id}`, {
+                const profileResponse = await fetch(`https://testdockerbackend.azurewebsites.net/api/user/user-details?user_id=${data.id}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

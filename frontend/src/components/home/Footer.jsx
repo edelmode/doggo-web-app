@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import PrivacyPolicy from './PrivacyPolicy';
-import 'font-awesome/css/font-awesome.min.css';
+import 'fortawesome/css/fortawesome.min.css';
 
 
 const Footer = () => {
@@ -19,7 +19,7 @@ const Footer = () => {
     setMessage(null);
 
     try {
-      const response = await fetch('http://localhost:3001/api/email/subscribe', {
+      const response = await fetch('https://testdockerbackend.azurewebsites.net/api/email/subscribe', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
