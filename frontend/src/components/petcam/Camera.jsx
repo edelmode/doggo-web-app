@@ -23,10 +23,10 @@ export default function Camera() {
     });
     
     // Pi Camera Stream URL - replace with your Raspberry Pi's IP address
-    const [piCameraUrl, setPiCameraUrl] = useState('http://192.168.1.140:5000/video_feed');
+    const [piCameraUrl, setPiCameraUrl] = useState('https://192.168.1.140:5000/video_feed');
     
     // Pi control endpoints
-    const piControlUrl = 'http://192.168.1.140:5000';
+    const piControlUrl = 'https://192.168.1.140:5000';
     
     // Handle connecting issues
     useEffect(() => {
