@@ -75,6 +75,7 @@ def register():
             "INSERT INTO users (email, password, is_verified, created_at, updated_at) VALUES (%s, %s, %s, NOW(), NOW())",
             (email, hashed_password, is_verified)
         )
+        # Important: Commit after each operation to ensure data is saved
         conn.commit()
 
         # Get the newly inserted user's ID
@@ -94,14 +95,65 @@ def register():
         )
         conn.commit()
 
+        # Generate verification token
+        verification_token = jwt.encode(
+            {
+                "user_id": user_id,
+                "email": email,
+                "exp": datetime.utcnow() + timedelta(hours=24)
+            },
+            SECRET_KEY,
+            algorithm="HS256"
+        )
+        
+        # Store token in the database
+        cursor.execute(
+            "UPDATE users SET verification_token = %s WHERE id = %s",
+            (verification_token, user_id)
+        )
+        conn.commit()
+        
+        # Try to send verification email
+        try:
+            # Construct the verification URL
+            client_url = os.getenv('CLIENT_URL', 'http://localhost:5173')
+            verification_url = f"{client_url}/verify-account?token={verification_token}"
+            
+            # Create and send email
+            msg = Message(
+                sender=current_app.config['MAIL_USERNAME'],
+                subject="Verify Your Doggo Account",
+                recipients=[email],
+                html=f"""
+                    <h1>Welcome to Doggo!</h1>
+                    <p>Thank you for registering. Please click the link below to verify your account:</p>
+                    <a href="{verification_url}">Verify Account</a>
+                    <p>This link will expire in 24 hours.</p>
+                """
+            )
+            
+            mail.send(msg)
+        except Exception as e:
+            # Log the error but continue with registration
+            current_app.logger.error(f"Error sending verification email: {str(e)}")
+
         # Return user_id in the response
-        return jsonify({"message": "Registration successful. Please verify your account.", "user_id": user_id}), 201
+        return jsonify({
+            "message": "Registration successful. Please check your email to verify your account.", 
+            "user_id": int(user_id),
+            "email": email
+        }), 201
     except Exception as e:
+        # Rollback in case of error
+        if conn:
+            conn.rollback()
+        current_app.logger.error(f"Registration error: {str(e)}")
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
     finally:
         if cursor:  # Ensure cursor is not None before closing
             cursor.close()
-
+            
+                    
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.json
@@ -309,3 +361,121 @@ def verify_token():
         return jsonify({"message": "Invalid or expired token"}), 401
     except jwt.InvalidTokenError:
         return jsonify({"message": "Invalid token"}), 401
+    
+@auth_bp.route('/send-verification', methods=['POST'])
+def send_verification():
+    data = request.get_json()
+    email = data.get('email')
+    user_id = data.get('user_id')
+    
+    if not email or not user_id:
+        return jsonify({"error": "Email and user ID are required."}), 400
+    
+    cursor = None
+    try:
+        # Generate verification token
+        verification_token = jwt.encode(
+            {
+                "user_id": user_id,
+                "email": email,
+                "exp": datetime.utcnow() + timedelta(hours=24)
+            },
+            SECRET_KEY,
+            algorithm="HS256"
+        )
+        
+        # Store token in the database
+        conn = mysql.connection
+        cursor = conn.cursor()
+        cursor.execute("USE doggo")
+        
+        # Update the user with the verification token
+        cursor.execute(
+            "UPDATE users SET verification_token = %s WHERE id = %s AND email = %s",
+            (verification_token, user_id, email)
+        )
+        conn.commit()
+        
+        # Construct the verification URL
+        client_url = os.getenv('CLIENT_URL', 'http://localhost:5173')
+        verification_url = f"{client_url}/verify-account?token={verification_token}"
+        
+        # Create and send email
+        msg = Message(
+            sender=current_app.config['MAIL_USERNAME'],
+            subject="Verify Your Doggo Account",
+            recipients=[email],
+            html=f"""
+                <h1>Welcome to Doggo!</h1>
+                <p>Thank you for registering. Please click the link below to verify your account:</p>
+                <a href="{verification_url}">Verify Account</a>
+                <p>This link will expire in 24 hours.</p>
+            """
+        )
+        
+        mail.send(msg)
+        
+        return jsonify({"message": "Verification email sent successfully."}), 200
+        
+    except Exception as e:
+        current_app.logger.error(f"Verification email error: {str(e)}")
+        if conn:
+            conn.rollback()
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+        
+    finally:
+        if cursor:
+            cursor.close()
+
+@auth_bp.route('/verify-account', methods=['GET'])
+def verify_account():
+    token = request.args.get('token')
+    
+    if not token:
+        return jsonify({"error": "Verification token is required."}), 400
+    
+    cursor = None
+    try:
+        # Decode the token
+        decoded = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        user_id = decoded.get('user_id')
+        email = decoded.get('email')
+        
+        # Verify in database
+        conn = mysql.connection
+        cursor = conn.cursor()
+        cursor.execute("USE doggo")
+        
+        # Check if token matches
+        cursor.execute(
+            "SELECT id FROM users WHERE id = %s AND email = %s AND verification_token = %s",
+            (user_id, email, token)
+        )
+        user = cursor.fetchone()
+        
+        if not user:
+            return jsonify({"error": "Invalid verification token."}), 400
+        
+        # Update user to verified status
+        cursor.execute(
+            "UPDATE users SET is_verified = 1, verification_token = NULL WHERE id = %s",
+            (user_id,)
+        )
+        conn.commit()
+        
+        # Redirect to a success page
+        return jsonify({"message": "Account verified successfully!"}), 200
+        
+    except jwt.ExpiredSignatureError:
+        return jsonify({"error": "Verification token has expired."}), 400
+    except jwt.InvalidTokenError:
+        return jsonify({"error": "Invalid verification token."}), 400
+    except Exception as e:
+        current_app.logger.error(f"Account verification error: {str(e)}")
+        if conn:
+            conn.rollback()
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+        
+    finally:
+        if cursor:
+            cursor.close()

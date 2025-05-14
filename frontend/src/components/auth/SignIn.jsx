@@ -9,6 +9,7 @@ export default function SignIn({ toggleModal, openSignUpModal, openForgotPassMod
     const [rememberMe, setRememberMe] = useState(false);
     const [email, setEmail] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         if (error) {
@@ -41,6 +42,9 @@ export default function SignIn({ toggleModal, openSignUpModal, openForgotPassMod
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         const password = e.target.password.value;
+        
+        // Set loading state to true when form is submitted
+        setIsLoading(true);
     
         try {
             // Send login request to backend
@@ -75,12 +79,15 @@ export default function SignIn({ toggleModal, openSignUpModal, openForgotPassMod
                 }
     
                 // Redirect to the fetching page after login
-                navigate('/fetching-page');
+                navigate('/petcam-page');
             } else {
                 setError("Something went wrong. No token received.");
             }
         } catch (error) {
             setError(error.message);
+        } finally {
+            // Set loading state back to false after request completes
+            setIsLoading(false);
         }
     };
     
@@ -129,6 +136,7 @@ export default function SignIn({ toggleModal, openSignUpModal, openForgotPassMod
                                 required
                                 value={email} 
                                 onChange={(e) => setEmail(e.target.value)}
+                                disabled={isLoading}
                             />
                         </div>
                         <div>
@@ -143,11 +151,13 @@ export default function SignIn({ toggleModal, openSignUpModal, openForgotPassMod
                                     placeholder="••••••••"
                                     className="text-sm rounded-lg block w-full p-2.5 border"
                                     required
+                                    disabled={isLoading}
                                 />
                                 <button
                                     type="button"
                                     onClick={togglePasswordVisibility}
                                     className="absolute inset-y-0 right-3 flex items-center text-gray-600"
+                                    disabled={isLoading}
                                 >
                                     {passwordVisible ? (
                                         <EyeOff className="w-5 h-5" />
@@ -166,25 +176,35 @@ export default function SignIn({ toggleModal, openSignUpModal, openForgotPassMod
                                         className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-600 dark:border-gray-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-[#DDDDD]-800"
                                         checked={rememberMe}
                                         onChange={(e) => setRememberMe(e.target.checked)}
+                                        disabled={isLoading}
                                     />
                                 </div>
                                 <label htmlFor="remember" className="ms-2 text-sm font-medium text-black-300 dark:text-black-300">
                                     Remember me
                                 </label>
                             </div>
-                            <a href="#" className="text-sm text-dark-pastel-orange hover:underline dark:text-dark-pastel-orange" onClick={openForgotPassModal}>
+                            <a 
+                                href="#" 
+                                className={`text-sm text-dark-pastel-orange hover:underline dark:text-dark-pastel-orange ${isLoading ? 'pointer-events-none opacity-50' : ''}`} 
+                                onClick={isLoading ? null : openForgotPassModal}
+                            >
                                 Forgot Password?
                             </a>
                         </div>
                         <button
                             type="submit"
-                            className="w-full text-white bg-dark-pastel-orange hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5"   
+                            className={`w-full text-white bg-dark-pastel-orange hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            disabled={isLoading}
                         >
-                            Sign In
+                            {isLoading ? 'Signing in...' : 'Sign In'}
                         </button>
                         <div className="text-sm font-medium text-gray-700 dark:text-gray-700">
                             Don't have an account?{' '}
-                            <a href="#" className="text-dark-pastel-orange font-semibold hover:underline dark:text-dark-pastel-orange" onClick={openSignUpModal}>
+                            <a 
+                                href="#" 
+                                className={`text-dark-pastel-orange font-semibold hover:underline dark:text-dark-pastel-orange ${isLoading ? 'pointer-events-none opacity-50' : ''}`} 
+                                onClick={isLoading ? null : openSignUpModal}
+                            >
                                 Sign Up
                             </a>
                         </div>
