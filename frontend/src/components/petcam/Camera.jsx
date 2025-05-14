@@ -47,16 +47,9 @@ export default function Camera() {
     
     useEffect(() => {
         if (isHttps) {
-            // Check if our proxy is working
-            fetch('/api/check-proxy')
-                .then(response => {
-                    if (!response.ok) {
-                        setProxyWarning(true);
-                    }
-                })
-                .catch(() => {
-                    setProxyWarning(true);
-                });
+            // Always set proxy warning to true for Vercel deployment since we 
+// know the proxy endpoints don't exist yet
+            setProxyWarning(true);
         }
     }, [isHttps]);
     
@@ -479,10 +472,10 @@ export default function Camera() {
         setError(null);
         setLoading(true);
         // Force reload by adding timestamp to URL
-        if (isHttps) {
-            setPiCameraUrl(`/api/video-feed?ip=${piIpAddress}&cache=${Date.now()}`);
-        } else {
+        if (isVercelDeployment || !isHttps) {
             setPiCameraUrl(`http://${piIpAddress}:5000/video_feed?cache=${Date.now()}`);
+        } else {
+            setPiCameraUrl(`/api/video-feed?ip=${piIpAddress}&cache=${Date.now()}`);
         }
     };
     
@@ -509,10 +502,10 @@ export default function Camera() {
         setLoading(true);
         
         // Update URLs with new IP
-        if (isHttps) {
-            setPiCameraUrl(`/api/video-feed?ip=${piIpAddress}&cache=${Date.now()}`);
-        } else {
+        if (isVercelDeployment || !isHttps) {
             setPiCameraUrl(`http://${piIpAddress}:5000/video_feed?cache=${Date.now()}`);
+        } else {
+            setPiCameraUrl(`/api/video-feed?ip=${piIpAddress}&cache=${Date.now()}`);
         }
     };
 
@@ -520,10 +513,12 @@ export default function Camera() {
         <div className="text-black bg-very-bright-pastel-orange bg-cover bg-center min-h-screen items-center px-5 sm:px-20 py-8 font-montserrat">
             {proxyWarning && (
                 <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mb-4" role="alert">
-                    <strong className="font-bold">Warning: </strong>
+                    <strong className="font-bold">Connection Warning: </strong>
                     <span className="block sm:inline">
-                        Your site is running on HTTPS but trying to access an HTTP camera feed. 
-                        Set up a proxy server or use HTTPS on your Raspberry Pi.
+                        {isVercelDeployment ? 
+                            "This app is hosted on Vercel and cannot directly connect to your Raspberry Pi camera. Please enter your Pi's IP address and ensure it's accessible from your network." :
+                            "Your site is running on HTTPS but trying to access an HTTP camera feed. Set up a proxy server or use HTTPS on your Raspberry Pi."
+                        }
                     </span>
                 </div>
             )}
@@ -532,12 +527,13 @@ export default function Camera() {
                 <label className="block text-gray-700 text-sm font-bold mb-2">
                     Raspberry Pi IP Address:
                 </label>
-                <div className="flex">
+                <div className="flex flex-wrap">
                     <input
                         type="text"
                         value={piIpAddress}
                         onChange={handleIpChange}
-                        className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mr-2"
+                        className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mr-2 mb-2 sm:mb-0"
+                        placeholder="Enter your Pi's IP address"
                     />
                     <button 
                         onClick={updateConnection}
@@ -546,6 +542,12 @@ export default function Camera() {
                         Connect
                     </button>
                 </div>
+                {isVercelDeployment && (
+                    <p className="text-sm text-gray-600 mt-2">
+                        Your Pi's IP must be accessible from your current network. 
+                        This connection will only work on your local network.
+                    </p>
+                )}
             </div>
 
             <div className="justify flex flex-col lg:flex-row w-full overflow-x-hidden gap-7">
