@@ -6,7 +6,7 @@ export default function ManualModal({ isOpen, onClose }) {
 
   // Replace this with your image filenames stored in /public/images/
   const images = [
-    '/images/DOGGO.png',
+    'public/images/DOGGO.png',
     '/images/DOGGO1.png',
     '/images/DOGGO2.png',
     '/images/DOGGO3.png',
