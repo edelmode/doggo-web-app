@@ -342,31 +342,46 @@ const UserDetails = () => {
             </button>
           )}
         </section>
+        
+<section className="bg-white p-6 rounded-lg shadow-lg mt-8">
+  <h3 className="text-lg font-semibold mb-4">Emotion Notification Preferences</h3>
+  <p className="text-gray-500 mb-4">
+    {isEditing
+      ? "This checklist indicates what emotion do you want to be notified."
+      : "You will be notified if your dog's emotion is detected to these checked emotion."}
+  </p>
+  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    {["Happy", "Fear", "Angry", "Relaxed"].map((emotion) => (
+      <label
+        key={emotion}
+        className="flex items-center space-x-2 bg-gray-100 p-2 rounded hover:bg-gray-200 transition-colors duration-200"
+      >
+        <input
+          type="checkbox"
+          name="emotions"
+          value={emotion}
+          checked={formData.emotions?.includes(emotion)}
+          onChange={(e) => {
+            if (!isEditing) return;
 
-        <section className="bg-white p-6 rounded-lg shadow-lg mt-5 mb-5">
-      <h3 className="text-lg font-semibold mb-2">Emotion Preferences</h3>
-      <p className="text-gray-600 mb-4">
-        This checklist indicates what emotion you want to be notified about.
-      </p>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {['Happy', 'Fear', 'Angry', 'Relaxed'].map((emotion) => (
-          <label
-            key={emotion}
-            className="flex items-center space-x-2 cursor-pointer bg-gray-50 hover:bg-gray-100 p-3 rounded-lg border border-gray-300 transition"
-          >
-            <input
-              type="checkbox"
-              name="emotions"
-              value={emotion}
-              checked={formData.emotions?.includes(emotion)}
-              onChange={handleEmotionChange}
-              className="accent-blue-500 w-5 h-5"
-            />
-            <span className="text-gray-700 font-medium">{emotion}</span>
-          </label>
-        ))}
-      </div>
-      </section>
+            const updated = formData.emotions || [];
+            const isChecked = updated.includes(emotion);
+
+            const newEmotions = isChecked
+              ? updated.filter((e) => e !== emotion)
+              : [...updated, emotion];
+
+            setFormData({ ...formData, emotions: newEmotions });
+          }}
+          disabled={!isEditing}
+          className="accent-blue-500 w-5 h-5"
+        />
+        <span className="text-gray-700">{emotion}</span>
+      </label>
+    ))}
+  </div>
+</section>
+
       </main>
       
       {/* Manual Modal appears conditionally */}
