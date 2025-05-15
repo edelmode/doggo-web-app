@@ -1,17 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-export default function ManualModal({ isOpen, onClose }) {
+export default function ManualModal({ isOpen, onClose, videos = [] }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const scrollRef = useRef(null);
-
-  // Replace this with your image filenames stored in /public/images/
-  const images = [
-    '/DOGGO.png',
-    '/DOGGO.png',
-    '/images/DOGGO2.png',
-    '/images/DOGGO3.png',
-    '/images/DOGGO4.png',
-  ];
 
   useEffect(() => {
     if (isOpen) {
@@ -30,7 +21,7 @@ export default function ManualModal({ isOpen, onClose }) {
   };
 
   const goToSlide = (index) => {
-    if (index >= 0 && index < images.length) {
+    if (index >= 0 && index < videos.length) {
       const container = scrollRef.current;
       const slideWidth = container.offsetWidth;
       container.scrollTo({ left: slideWidth * index, behavior: 'smooth' });
@@ -51,7 +42,7 @@ export default function ManualModal({ isOpen, onClose }) {
           ✕
         </button>
 
-        {/* Image container with arrows */}
+        {/* Video container with arrows */}
         <div className="relative flex items-center w-full">
           {/* Left Arrow */}
           {currentSlide > 0 && (
@@ -64,28 +55,28 @@ export default function ManualModal({ isOpen, onClose }) {
             </button>
           )}
 
-          {/* Horizontal scrollable images */}
+          {/* Horizontal scrollable videos */}
           <div
             className="flex overflow-x-auto snap-x snap-mandatory space-x-4 hide-scrollbar w-full"
             ref={scrollRef}
             onScroll={handleScroll}
           >
-            {images.map((src, idx) => (
-              <div
-                key={idx}
-                className="min-w-full snap-center flex-shrink-0 overflow-hidden rounded-lg shadow-lg bg-white flex items-center justify-center relative"
-              >
-                <img
-                  className="w-[350px] h-[600px] object-contain rounded shadow"
-                  src={src}
-                  alt={`Slide ${idx + 1}`}
-                />
-              </div>
-            ))}
+            {videos.map((image, idx) => (
+            <div
+              key={idx}
+              className="min-w-full snap-center flex-shrink-0 overflow-hidden rounded-lg shadow-lg bg-white flex items-center justify-center relative"
+            >
+              <img
+                className="w-[350px] h-[600px] object-cover aspect-[9/16] rounded shadow"
+                src={image}
+                alt={`Slide ${idx + 1}`}
+              />
+            </div>
+          ))}
           </div>
-
+            
           {/* Right Arrow */}
-          {currentSlide < images.length - 1 && (
+          {currentSlide < videos.length - 1 && (
             <button
               onClick={() => goToSlide(currentSlide + 1)}
               className="absolute right-0 z-10 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full p-2 shadow-md"
@@ -96,9 +87,9 @@ export default function ManualModal({ isOpen, onClose }) {
           )}
         </div>
 
-        {/* Dot indicators OR Close button on last image */}
-        <div className="w-full flex justify-end mt-4">
-          {currentSlide === images.length - 1 ? (
+        {/* Dot indicators OR Close button on last video */}
+        <div className=" w-full flex justify-end mt-4">
+          {currentSlide === videos.length - 1 ? (
             <button
               onClick={onClose}
               className="bg-dark-pastel-orange text-white font-medium px-5 py-2 rounded hover:bg-dark-grayish-orange"
@@ -107,7 +98,7 @@ export default function ManualModal({ isOpen, onClose }) {
             </button>
           ) : (
             <div className="flex space-x-2">
-              {images.map((_, idx) => (
+              {videos.map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => goToSlide(idx)}

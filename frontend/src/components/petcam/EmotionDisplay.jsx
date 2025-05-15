@@ -296,7 +296,6 @@ export default function EmotionDisplay({
                 </div>
                 
                 {/* Connection status indicator */}
-                <div>
                 <div className="mt-2 flex items-center justify-center">
                     <div className={`w-3 h-3 rounded-full mr-2 ${isConnected ? 'bg-green-500' : usingPolling && pollingSuccess ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
                     <span className="text-xs text-gray-600">
@@ -304,7 +303,6 @@ export default function EmotionDisplay({
                          usingPolling && pollingSuccess ? 'Using HTTP polling fallback' : 
                          'Attempting to connect...'}
                     </span>
-                </div>
                 </div>
                 
                 {/* Debug message */}
