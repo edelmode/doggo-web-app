@@ -1,17 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-export default function ManualModal({ isOpen, onClose }) {
+export default function ManualModal({ isOpen, onClose, images = [] }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const scrollRef = useRef(null);
-
-  // Replace this with your image filenames stored in /public/images/
-  const images = [
-    '/images/DOGGO.png',
-    '/images/DOGGO1.png',
-    '/images/DOGGO2.png',
-    '/images/DOGGO3.png',
-    '/images/DOGGO4.png',
-  ];
 
   useEffect(() => {
     if (isOpen) {
@@ -70,15 +61,15 @@ export default function ManualModal({ isOpen, onClose }) {
             ref={scrollRef}
             onScroll={handleScroll}
           >
-            {images.map((src, idx) => (
+            {images.map((imgSrc, idx) => (
               <div
                 key={idx}
                 className="min-w-full snap-center flex-shrink-0 overflow-hidden rounded-lg shadow-lg bg-white flex items-center justify-center relative"
               >
                 <img
-                  className="w-[350px] h-[600px] object-contain rounded shadow"
-                  src={src}
+                  src={imgSrc}
                   alt={`Slide ${idx + 1}`}
+                  className="w-[350px] h-[600px] object-contain aspect-[9/16] rounded shadow"
                 />
               </div>
             ))}
