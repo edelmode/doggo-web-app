@@ -343,7 +343,7 @@ const UserDetails = () => {
           )}
         </section>
 
-        <section className="bg-white p-6 rounded-lg shadow-lg mt-8">
+        <section className="bg-white p-6 rounded-lg shadow-lg mt-5 mb-5">
       <h3 className="text-lg font-semibold mb-2">Emotion Preferences</h3>
       <p className="text-gray-600 mb-4">
         This checklist indicates what emotion you want to be notified about.
