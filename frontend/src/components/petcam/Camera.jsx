@@ -23,10 +23,10 @@ export default function Camera() {
     });
     
     // Pi Camera Stream URL - replace with your Raspberry Pi's IP address
-    const [piCameraUrl, setPiCameraUrl] = useState('https://192.168.1.140:5000/video_feed');
+    const [piCameraUrl, setPiCameraUrl] = useState('https://raspberrypi.tail58fb54.ts.net/video_feed');
     
     // Pi control endpoints
-    const piControlUrl = 'https://192.168.1.140:5000';
+    const piControlUrl = 'https://raspberrypi.tail58fb54.ts.net';
     
     // Handle connecting issues
     useEffect(() => {
@@ -447,7 +447,7 @@ export default function Camera() {
         setError(null);
         setLoading(true);
         // Force reload by adding timestamp to URL
-        setPiCameraUrl(`https://192.168.1.140:5000/video_feed?cache=${Date.now()}`);
+        setPiCameraUrl(`https://raspberrypi.tail58fb54.ts.net/video_feed?cache=${Date.now()}`);
     };
     
     // Handle image load error

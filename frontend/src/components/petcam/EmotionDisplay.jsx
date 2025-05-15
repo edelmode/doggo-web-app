@@ -26,7 +26,7 @@ export default function EmotionDisplay({
     // Configuration with environment-specific settings
     const CONFIG = {
         // Replace with your actual backend URL or use environment variables
-        socketUrl: 'https://192.168.1.140:5000',
+        socketUrl: 'https://raspberrypi.tail58fb54.ts.net',
         pollingEndpoint: '/get_current_emotion',
         maxSocketAttempts: 3,
         socketTimeout: 5000, // 5 seconds
