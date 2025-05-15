@@ -1,12 +1,8 @@
 import { useState } from 'react';
 import PrivacyPolicy from './PrivacyPolicy';
-import { 
-  Facebook, 
-  Instagram, 
-  Twitter, 
-  ChevronRight, 
-  Dog, 
-  Mail 
+import {
+  ChevronRight,
+  Dog,
 } from 'lucide-react';
 
 const Footer = () => {
@@ -30,17 +26,14 @@ const Footer = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: 'Subscriber', email }), // Add `name` if required by the backend
+        body: JSON.stringify({ name: 'Subscriber', email }),
       });
 
       const result = await response.json();
 
       if (response.ok) {
         setMessage('Subscribed!');
-
-        setTimeout(() => {
-          setMessage('');
-        }, 5000);
+        setTimeout(() => setMessage(''), 5000);
       } else {
         setMessage(result.error || 'Subscription failed. Please try again.');
       }
@@ -49,7 +42,7 @@ const Footer = () => {
       setMessage('An error occurred. Please try again later.');
     } finally {
       setIsLoading(false);
-      setEmail(''); // Clear the email input
+      setEmail('');
     }
   };
 
@@ -61,107 +54,33 @@ const Footer = () => {
       </div>
 
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center md:text-left">
-          {/* Social Media Icons */}
-          <div className="md:ml-10">
-            <h5 className="text-lg text-dark-pastel-orange font-bold mb-4">
-              Follow Us
-            </h5>
-            <div className="flex justify-center md:justify-start space-x-4">
-              <a
-                href="https://facebook.com"
-                className="hover:text-gray-400 transition duration-300"
-              >
-                <Facebook size={24} />
-              </a>
-              <a
-                href="https://instagram.com"
-                className="hover:text-gray-400 transition duration-300"
-              >
-                <Instagram size={24} />
-              </a>
-              <a
-                href="https://twitter.com"
-                className="hover:text-gray-400 transition duration-300"
-              >
-                <Twitter size={24} />
-              </a>
-            </div>
-          </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-center md:text-left justify-center">
           {/* Quick Links Section */}
-          <div className="mb-10">
+          <div className="mb-10 md:ml-10">
             <h4 className="text-lg text-dark-pastel-orange font-bold mb-2">
               Quick Links
             </h4>
             <ul className="space-y-2 flex flex-col font-medium justify-center md:justify-start">
-              <li>
-                <div className="flex items-center">
-                  <ChevronRight size={16} className="mr-1" />
-                  <a
-                    href="#home"
-                    className="hover:text-dark-grayish-orange transition duration-300"
-                  >
-                    Home
-                  </a>
-                </div>
-              </li>
-              <li>
-                <div className="flex items-center">
-                  <ChevronRight size={16} className="mr-1" />
-                  <a
-                    href="#contact"
-                    className="hover:text-dark-grayish-orange transition duration-300"
-                  >
-                    Contact Us
-                  </a>
-                </div>
-              </li>
-              <li>
-                <div className="flex items-center">
-                  <ChevronRight size={16} className="mr-1" />
-                  <a
-                    href="#about"
-                    className="hover:text-dark-grayish-orange transition duration-300"
-                  >
-                    About Us
-                  </a>
-                </div>
-              </li>
-              <li>
-                <div className="flex items-center">
-                  <ChevronRight size={16} className="mr-1" />
-                  <a
-                    href="#team"
-                    className="hover:text-dark-grayish-orange transition duration-300"
-                  >
-                    Our Team
-                  </a>
-                </div>
-              </li>
-              <li>
-                <div className="flex items-center">
-                  <ChevronRight size={16} className="mr-1" />
-                  <a
-                    href="#faqs"
-                    className="hover:text-dark-grayish-orange transition duration-300"
-                  >
-                    FAQs
-                  </a>
-                </div>
-              </li>
-              <li>
-                <div className="flex items-center">
-                  <ChevronRight size={16} className="mr-1" />
-                  <a
-                    href="#terms"
-                    className="hover:text-dark-grayish-orange transition duration-300"
-                    onClick={togglePrivacyModal}
-                  >
-                    Privacy Policy
-                  </a>
-                </div>
-              </li>
+              {[
+                { label: 'Home', href: '#home' },
+                { label: 'Contact Us', href: '#contact' },
+                { label: 'About Us', href: '#about' },
+                { label: 'Our Team', href: '#team' },
+                { label: 'Privacy Policy', href: '#terms', onClick: togglePrivacyModal },
+              ].map(({ label, href, onClick }) => (
+                <li key={label}>
+                  <div className="flex items-center">
+                    <ChevronRight size={16} className="mr-1" />
+                    <a
+                      href={href}
+                      onClick={onClick}
+                      className="hover:text-dark-grayish-orange transition duration-300"
+                    >
+                      {label}
+                    </a>
+                  </div>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -169,9 +88,7 @@ const Footer = () => {
           <div>
             <h4
               className="text-lg font-bold mb-2 text-white shadow-md"
-              style={{
-                textShadow: '2px 2px 4px black',
-              }}
+              style={{ textShadow: '2px 2px 4px black' }}
             >
               Subscribe to our Newsletter
             </h4>
@@ -195,11 +112,11 @@ const Footer = () => {
                   disabled={!!message}
                   className={`w-36 text-white font-bold px-3 py-2 rounded-lg ${
                     message
-                        ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-dark-pastel-orange hover:bg-dark-grayish-orange transition duration-300'
-                }`}
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-dark-pastel-orange hover:bg-dark-grayish-orange transition duration-300'
+                  }`}
                 >
-                    {message || 'Subscribe'}
+                  {message || 'Subscribe'}
                 </button>
               </div>
             </form>
@@ -210,7 +127,7 @@ const Footer = () => {
       {/* Modal */}
       {isPrivacyOpen && <PrivacyPolicy togglePrivacyModal={togglePrivacyModal} />}
 
-      {/* Copyright Section */}
+      {/* Copyright */}
       <div className="mt-8 text-right text-sm text-white mr-10">
         <p>&copy; {new Date().getFullYear()} Doggo. All rights reserved.</p>
       </div>
