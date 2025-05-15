@@ -11,7 +11,14 @@ export default function Navbar() {
     const navigate = useNavigate();
     const location = useLocation();
 
-
+    // Tutorial videos for the manual
+    const manualVideos = [
+        "/images/DOGGO.png",
+        "/images/DOGGO.png",
+        "/images/DOGGO.png",
+        "/images/DOGGO.png",
+        "/images/DOGGO.png",
+    ];
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
