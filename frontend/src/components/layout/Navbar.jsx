@@ -11,14 +11,6 @@ export default function Navbar() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Tutorial videos for the manual
-    const videoUrls = [
-    "/videos/manual1.mp4",
-    "/videos/manual2.mp4",
-    "/videos/manual3.mp4",
-    "/videos/manual4.mp4",
-    "/videos/manual5.mp4",
-    ];
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
