@@ -351,34 +351,40 @@ const UserDetails = () => {
       : "You will be notified if your dog's emotion is detected to these checked emotion."}
   </p>
   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-    {["Happy", "Fear", "Angry", "Relaxed"].map((emotion) => (
-      <label
-        key={emotion}
-        className="flex items-center space-x-2 bg-gray-100 p-2 rounded hover:bg-gray-200 transition-colors duration-200"
-      >
-        <input
-          type="checkbox"
-          name="emotions"
-          value={emotion}
-          checked={formData.emotions?.includes(emotion)}
-          onChange={(e) => {
-            if (!isEditing) return;
+  {isEditing
+    ? ["Happy", "Fear", "Angry", "Relaxed"].map((emotion) => (
+        <label
+          key={emotion}
+          className="flex items-center space-x-2 bg-gray-100 p-2 rounded hover:bg-gray-200 transition-colors duration-200"
+        >
+          <input
+            type="checkbox"
+            name="emotions"
+            value={emotion}
+            checked={formData.emotions?.includes(emotion)}
+            onChange={() => {
+              const updated = formData.emotions || [];
+              const isChecked = updated.includes(emotion);
+              const newEmotions = isChecked
+                ? updated.filter((e) => e !== emotion)
+                : [...updated, emotion];
+              setFormData({ ...formData, emotions: newEmotions });
+            }}
+            className="accent-blue-500 w-5 h-5"
+          />
+          <span className="text-gray-700">{emotion}</span>
+        </label>
+      ))
+    : formData.emotions?.map((emotion) => (
+        <div
+          key={emotion}
+          className="flex items-center space-x-2 bg-green-100 text-green-800 p-2 rounded"
+        >
+          <span className="text-sm font-medium">{emotion}</span>
+        </div>
+      ))}
 
-            const updated = formData.emotions || [];
-            const isChecked = updated.includes(emotion);
 
-            const newEmotions = isChecked
-              ? updated.filter((e) => e !== emotion)
-              : [...updated, emotion];
-
-            setFormData({ ...formData, emotions: newEmotions });
-          }}
-          disabled={!isEditing}
-          className="accent-blue-500 w-5 h-5"
-        />
-        <span className="text-gray-700">{emotion}</span>
-      </label>
-    ))}
   </div>
 </section>
 

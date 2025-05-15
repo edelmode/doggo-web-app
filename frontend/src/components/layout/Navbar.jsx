@@ -69,6 +69,7 @@ export default function Navbar() {
             <ManualModal 
                 isOpen={showManual} 
                 onClose={() => setShowManual(false)} 
+                images={["/DOGGO.PNG", "/DOGGO.png", "/manual3.png"]} // Replace with your actual image paths
             />
 
             {isSigningOut && (
