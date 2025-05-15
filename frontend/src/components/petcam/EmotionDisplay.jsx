@@ -23,32 +23,35 @@ export default function EmotionDisplay({
     const [lastRecordedEmotion, setLastRecordedEmotion] = useState(null);
     const [lastRecordedDate, setLastRecordedDate] = useState(null);
 
-    // Configuration with environment-specific settings
     const CONFIG = {
-        // Replace with your actual backend URL or use environment variables
-        socketUrl: 'https://192.168.1.140:5000',
-        pollingEndpoint: '/get_current_emotion',
+        backendUrl: 'https://testdockerbackend.azurewebsites.net',
+        
+        socketUrl: 'https://testdockerbackend.azurewebsites.net',
+        socketPath: '/socket.io',
+        socketNamespace: '/camera', 
+        
+        pollingEndpoint: '/api/camera-proxy/get_current_emotion',
+        
         maxSocketAttempts: 3,
         socketTimeout: 5000, // 5 seconds
         pollingInterval: 1000, // 1 second
         socketRetryInterval: 30000, // 30 seconds
-        // Removed emotionRecordInterval as we want to record each detection
     };
 
-    // Connect to Socket.IO server when component mounts
     useEffect(() => {
-        // Only attempt socket connection if we haven't exceeded max attempts
         if (connectionAttempts < CONFIG.maxSocketAttempts) {
             const debugMessage = `Attempting Socket.IO connection #${connectionAttempts + 1}...`;
             console.log(debugMessage);
             setDebugMsg(debugMessage);
             
             const newSocket = io(CONFIG.socketUrl, {
+                path: CONFIG.socketPath,
                 reconnectionAttempts: 3,
                 reconnectionDelay: 1000,
                 autoConnect: true,
                 timeout: CONFIG.socketTimeout,
-                transports: ['websocket', 'polling'] // Try websocket first, then polling
+                transports: ['websocket', 'polling'], // Try websocket first, then polling
+                ...(CONFIG.socketNamespace ? { namespace: CONFIG.socketNamespace } : {})
             });
 
             // Socket event handlers
@@ -132,7 +135,8 @@ export default function EmotionDisplay({
             
             pollingInterval = setInterval(async () => {
                 try {
-                    const response = await fetch(`${CONFIG.socketUrl}${CONFIG.pollingEndpoint}`);
+                    // UPDATED: Use the Azure backend proxy for polling
+                    const response = await fetch(`${CONFIG.backendUrl}${CONFIG.pollingEndpoint}`);
                     
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -240,7 +244,7 @@ export default function EmotionDisplay({
             };
             console.log('Sending payload to server:', payload);
             
-            const response = await fetch('https://testdockerbackend.azurewebsites.net/api/dashboard/save-emotion', {
+            const response = await fetch(`${CONFIG.backendUrl}/api/dashboard/save-emotion`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
