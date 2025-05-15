@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Aperture, Video, StopCircle, Maximize2, Minimize2 } from 'lucide-react';
 import EmotionDisplay from './EmotionDisplay';
 import ControlButtons from './ControlButton';
+import io from 'socket.io-client';
 
 export default function Camera() {
     const photoRef = useRef(null);
@@ -16,17 +17,17 @@ export default function Camera() {
     const [savedPhotoUrl, setSavedPhotoUrl] = useState(null);
     const [isSavingVideo, setIsSavingVideo] = useState(false);
     const [savedVideoUrl, setSavedVideoUrl] = useState(null);
+    const [socket, setSocket] = useState(null);
     
     // Form data state (simplified for this example)
     const [formData, setFormData] = useState({
         pet_name: "pet"
     });
     
-    // Pi Camera Stream URL - replace with your Raspberry Pi's IP address
-    const [piCameraUrl, setPiCameraUrl] = useState('https://192.168.1.140:5000/video_feed');
-    
-    // Pi control endpoints
-    const piControlUrl = 'https://192.168.1.140:5000';
+    // Backend proxy URLs (instead of direct Pi access)
+    const backendUrl = 'https://testdockerbackend.azurewebsites.net';
+    const proxyBaseUrl = `${backendUrl}/api/camera-proxy`;
+    const [piCameraUrl, setPiCameraUrl] = useState(`${proxyBaseUrl}/video_feed`);
     
     // Handle connecting issues
     useEffect(() => {
@@ -41,11 +42,55 @@ export default function Camera() {
         return () => clearTimeout(streamLoadTimeout);
     }, [piCameraUrl]);
 
-    // Check connection status to Pi server
+    // Socket.IO connection to proxy
+    useEffect(() => {
+        // Initialize socket connection through proxy
+        const newSocket = io(backendUrl, {
+            path: '/socket.io',
+            transports: ['websocket'],
+            namespace: '/camera'
+        });
+        
+        newSocket.on('connect', () => {
+            console.log('Connected to camera proxy socket');
+            newSocket.emit('subscribe_to_emotions');
+        });
+        
+        newSocket.on('connection_status', (data) => {
+            console.log('Connection status:', data);
+            if (data.status === 'error') {
+                setError(`Socket connection error: ${data.message}`);
+            } else if (data.status === 'connected') {
+                setError(null);
+            }
+        });
+        
+        newSocket.on('emotion_update', (data) => {
+            if (data && data.class) {
+                setEmotion(`${data.class} (${data.confidence.toFixed(2)}%)`);
+            }
+        });
+        
+        newSocket.on('disconnect', () => {
+            console.log('Disconnected from camera proxy socket');
+        });
+        
+        setSocket(newSocket);
+        
+        // Cleanup on component unmount
+        return () => {
+            if (newSocket) {
+                newSocket.emit('unsubscribe_from_emotions');
+                newSocket.disconnect();
+            }
+        };
+    }, [backendUrl]);
+
+    // Check connection status to proxy server
     useEffect(() => {
         const checkConnection = async () => {
             try {
-                const response = await fetch(`${piControlUrl}/get_current_emotion`, {
+                const response = await fetch(`${proxyBaseUrl}/get_current_emotion`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -56,11 +101,11 @@ export default function Camera() {
                 if (response.ok) {
                     setError(null);
                 } else {
-                    setError("Pi server reachable but returning errors");
+                    setError("Camera proxy reachable but returning errors");
                 }
             } catch (err) {
-                console.error('Error checking Pi connection:', err);
-                setError("Cannot connect to Pi server");
+                console.error('Error checking proxy connection:', err);
+                setError("Cannot connect to camera proxy");
             }
         };
         
@@ -70,7 +115,7 @@ export default function Camera() {
         const intervalId = setInterval(checkConnection, 30000); // Check every 30 seconds
         
         return () => clearInterval(intervalId);
-    }, [piControlUrl]);
+    }, [proxyBaseUrl]);
 
     const handleMicToggle = () => {
         console.log('Mic toggled!');
@@ -80,12 +125,13 @@ export default function Camera() {
         try {
             setProcessingFrame(true);
             
-            // Request a photo capture from the Pi
-            const response = await fetch(`${piControlUrl}/camera/capture_photo`, {
+            // Request a photo capture from the proxy
+            const response = await fetch(`${proxyBaseUrl}/camera/capture_photo`, {
                 method: 'POST',
                 credentials: 'omit', // Don't send cookies
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}` // Add JWT token for auth
                 },
                 // Empty body but specified as JSON to avoid preflight issue
                 body: JSON.stringify({})
@@ -154,11 +200,12 @@ export default function Camera() {
                 throw new Error("User not logged in");
             }
             
-            // Take and save the photo directly on the Pi
-            const response = await fetch(`${piControlUrl}/camera/capture_photo`, {
+            // Take and save the photo via proxy
+            const response = await fetch(`${proxyBaseUrl}/take_and_save_photo`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}` // Add JWT token for auth
                 },
                 body: JSON.stringify({
                     user_id: user_id,
@@ -177,15 +224,15 @@ export default function Camera() {
                 throw new Error(result.error);
             }
             
-
-            const backendResponse = await fetch('https://testdockerbackend.azurewebsites.net/api/gallery/save-photo', {
+            const backendResponse = await fetch(`${backendUrl}/api/gallery/save-photo`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}` // Add JWT token for auth
                 },
                 body: JSON.stringify({
                     user_id: user_id,
-                    photo_data: result.photo,  // Use the photo data from the Pi
+                    photo_data: result.photo,  // Use the photo data from the proxy
                     pet_name: formData.pet_name || "pet",
                     emotion: emotion,
                     filename: result.filename
@@ -213,18 +260,21 @@ export default function Camera() {
         }
     };
 
-    // Start recording from Pi camera stream
+    // Start recording from Pi camera stream via proxy
     const startRecording = async () => {
         try {
             setProcessingFrame(true);
             
-            // Request the Pi to start recording
-            const response = await fetch(`${piControlUrl}/start_recording`, {
+            // Request the proxy to start recording
+            const response = await fetch(`${proxyBaseUrl}/start_recording`, {
                 method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}` // Add JWT token for auth
+                }
             });
             
             if (!response.ok) {
-                throw new Error(`Failed to start recording on Pi: ${response.status}`);
+                throw new Error(`Failed to start recording: ${response.status}`);
             }
             
             setIsRecording(true);
@@ -244,18 +294,19 @@ export default function Camera() {
             
             console.log("Stopping recording...");
             
-            // Request the Pi to stop recording and get the video
-            const response = await fetch(`${piControlUrl}/stop_recording`, {
+            // Request the proxy to stop recording and get the video
+            const response = await fetch(`${proxyBaseUrl}/stop_recording`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}` // Add JWT token for auth
                 }
             });
             
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error(`Stop recording error response: ${errorText}`);
-                throw new Error(`Failed to stop recording on Pi: ${response.status}`);
+                throw new Error(`Failed to stop recording: ${response.status}`);
             }
             
             const result = await response.json();
@@ -311,11 +362,12 @@ export default function Camera() {
 
             console.log(`Attempting to transfer video: ${videoPath}`);
             
-            // Request the Pi server to transfer the video to Azure
-            const response = await fetch(`${piControlUrl}/transfer_video`, {
+            // Request the proxy to transfer the video to Azure
+            const response = await fetch(`${proxyBaseUrl}/transfer_video`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}` // Add JWT token for auth
                 },
                 body: JSON.stringify({
                     user_id: user_id,
@@ -338,13 +390,17 @@ export default function Camera() {
             
             console.log("Video transfer successful:", result);
             
-            // First, fetch the actual video file from the Pi server
-            const videoFileUrl = `${piControlUrl}${result.video_url}`;
-            console.log(`Fetching video file from: ${videoFileUrl}`);
+            // For the proxy setup, we'll fetch the video from the proxy URL
+            const videoFileUrl = `${proxyBaseUrl}/videos/${result.filename}`;
+            console.log(`Fetching video file from proxy: ${videoFileUrl}`);
             
-            const videoResponse = await fetch(videoFileUrl);
+            const videoResponse = await fetch(videoFileUrl, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}` // Add JWT token for auth
+                }
+            });
             if (!videoResponse.ok) {
-                throw new Error(`Failed to fetch video file from Pi: ${videoResponse.status}`);
+                throw new Error(`Failed to fetch video file from proxy: ${videoResponse.status}`);
             }
             
             // Convert to blob
@@ -379,8 +435,11 @@ export default function Camera() {
             }
             
             // Now upload to Azure via backend server with the actual file
-            const backendResponse = await fetch('https://testdockerbackend.azurewebsites.net/api/camera/gallery/save-video', {
+            const backendResponse = await fetch(`${backendUrl}/api/camera/gallery/save-video`, {
                 method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}` // Add JWT token for auth
+                },
                 body: formDataObj 
             });
             
@@ -447,13 +506,13 @@ export default function Camera() {
         setError(null);
         setLoading(true);
         // Force reload by adding timestamp to URL
-        setPiCameraUrl(`https://192.168.1.140:5000/video_feed?cache=${Date.now()}`);
+        setPiCameraUrl(`${proxyBaseUrl}/video_feed?cache=${Date.now()}`);
     };
     
     // Handle image load error
     const handleImageError = () => {
         setLoading(false);
-        setError("Cannot connect to Pi camera stream");
+        setError("Cannot connect to camera proxy stream");
     };
     
     // Handle image load success
