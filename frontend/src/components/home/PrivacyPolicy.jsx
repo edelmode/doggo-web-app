@@ -21,7 +21,7 @@ const PrivacyPolicy = ({ togglePrivacyModal }) => {
                         <h3 className="text-2xl font-semibold text-black">
                             DOGGO Privacy Policy
                             <p className="text-gray-700 text-lg mt-2 mb-4">
-                                Effective Date: [Insert Date] 
+                                Effective Date: May 04, 2025
                             </p>
                         </h3>
                       </div>
@@ -69,7 +69,7 @@ const PrivacyPolicy = ({ togglePrivacyModal }) => {
 
                     <h2 className="text-xl font-semibold mt-6 mb-2">5. Your Data Rights</h2>
                     <p className="text-gray-700 mb-4">
-                      You have the right to access, correct, or delete your personal information. Contact us at [Insert Email].
+                      You have the right to access, correct, or delete your personal information. Contact us at <i>doggo.fetching@gmail.com.</i>
                     </p>
                 </div>
             </div>
