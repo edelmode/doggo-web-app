@@ -62,32 +62,6 @@ const Footer = () => {
 
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center md:text-left">
-          {/* Social Media Icons */}
-          <div className="md:ml-10">
-            <h5 className="text-lg text-dark-pastel-orange font-bold mb-4">
-              Follow Us
-            </h5>
-            <div className="flex justify-center md:justify-start space-x-4">
-              <a
-                href="https://facebook.com"
-                className="hover:text-gray-400 transition duration-300"
-              >
-                <Facebook size={24} />
-              </a>
-              <a
-                href="https://instagram.com"
-                className="hover:text-gray-400 transition duration-300"
-              >
-                <Instagram size={24} />
-              </a>
-              <a
-                href="https://twitter.com"
-                className="hover:text-gray-400 transition duration-300"
-              >
-                <Twitter size={24} />
-              </a>
-            </div>
-          </div>
 
           {/* Quick Links Section */}
           <div className="mb-10">

@@ -13,11 +13,11 @@ export default function Navbar() {
 
     // Tutorial videos for the manual
     const manualVideos = [
-        "/videos/getting-started.mp4", 
-        "/videos/pet-cam-tutorial.mp4",
-        "/videos/dashboard-tutorial.mp4",
-        "/videos/gallery-tutorial.mp4",
-        "/videos/account-management.mp4"
+        "/videos/DOGGO.png",
+        "/videos/DOGGO.png",
+        "/videos/DOGGO.png",
+        "/videos/DOGGO.png",
+        "/videos/DOGGO.png",
     ];
 
     const toggleDropdown = () => {

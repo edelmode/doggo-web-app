@@ -61,21 +61,18 @@ export default function ManualModal({ isOpen, onClose, videos = [] }) {
             ref={scrollRef}
             onScroll={handleScroll}
           >
-            {videos.map((video, idx) => (
-              <div
-                key={idx}
-                className="min-w-full snap-center flex-shrink-0 overflow-hidden rounded-lg shadow-lg bg-white flex items-center justify-center relative"
-              >
-                <video
-                  className="w-[350px] h-[600px] aspect-[9/16] rounded shadow"
-                  autoPlay
-                  muted
-                  playsInline
-                  onEnded={(e) => e.target.pause()}
-                  src={video}
-                />
-              </div>
-            ))}
+            {videos.map((image, idx) => (
+            <div
+              key={idx}
+              className="min-w-full snap-center flex-shrink-0 overflow-hidden rounded-lg shadow-lg bg-white flex items-center justify-center relative"
+            >
+              <img
+                className="w-[350px] h-[600px] object-cover aspect-[9/16] rounded shadow"
+                src={image}
+                alt={`Slide ${idx + 1}`}
+              />
+            </div>
+          ))}
           </div>
             
           {/* Right Arrow */}
