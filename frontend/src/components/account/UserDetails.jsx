@@ -27,7 +27,8 @@ const UserDetails = () => {
     contact_number: "",
     sex: "",
     breed: "",
-    age: ""
+    age: "",
+    emotions: []
   });
 
   useEffect(() => {
@@ -331,6 +332,31 @@ const UserDetails = () => {
             </button>
           )}
         </section>
+
+        <section className="bg-white p-6 rounded-lg shadow-lg mt-8">
+  <h3 className="text-lg font-semibold mb-2">Emotion Preferences</h3>
+  <p className="text-gray-600 mb-4">
+    This checklist indicates what emotion you want to be notified about.
+  </p>
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    {['Happy', 'Fear', 'Angry', 'Relaxed'].map((emotion) => (
+      <label
+        key={emotion}
+        className="flex items-center space-x-2 cursor-pointer bg-gray-50 hover:bg-gray-100 p-3 rounded-lg border border-gray-300 transition"
+      >
+        <input
+          type="checkbox"
+          name="emotions"
+          value={emotion}
+          checked={formData.emotions?.includes(emotion)}
+          onChange={handleEmotionChange}
+          className="accent-blue-500 w-5 h-5"
+        />
+        <span className="text-gray-700 font-medium">{emotion}</span>
+      </label>
+    ))}
+  </div>
+</section>
       </main>
       
       {/* Manual Modal appears conditionally */}
