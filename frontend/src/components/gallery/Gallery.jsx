@@ -113,73 +113,71 @@ const Gallery = () => {
       ) : (
         <>
           {/* Photos Section */}
-          <h2 className="text-2xl font-bold mt-8 mb-4">Photos</h2>
-          <div className="pt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {photos.length > 0 ? (
-              photos.map((photo) => (
-                <div
-                  key={photo.id}
-                  className="bg-white shadow-lg p-4 rounded cursor-pointer hover:shadow-xl transition-shadow"
-                  onClick={() => setSelectedPhoto(photo)}
-                >
-                  {/* Photo Thumbnail */}
-                  <div className="bg-gray-200 rounded w-full h-40 overflow-hidden">
-                    <img 
-                      src={photo.url} 
-                      alt={`${photo.pet_name || 'Pet'} photo`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+<h2 className="text-2xl font-bold mt-8 mb-4">Photos</h2>
+<div className="pt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+  {photos.length > 0 ? (
+    photos.map((photo) => (
+      <div
+        key={photo.id}
+        className="bg-white shadow-lg p-3 rounded cursor-pointer hover:shadow-xl transition-shadow"
+        onClick={() => setSelectedPhoto(photo)}
+      >
+        {/* Photo Thumbnail */}
+        <div className="bg-gray-200 rounded w-full aspect-[4/3] overflow-hidden">
+          <img 
+            src={photo.url} 
+            alt={`${photo.pet_name || 'Pet'} photo`}
+            className="w-full h-full object-cover"
+          />
+        </div>
 
-                  {/* Photo Information */}
-                  <div className="mt-2 text-left">
-                    <p className="text-sm text-gray-500">{photo.emotion || "Emotion"}</p>
-                    <p className="text-sm text-gray-500">{new Date(photo.created_at).toLocaleDateString()}</p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="col-span-full text-center py-8">
-                <p>No photos yet. Capture some moments with your pet!</p>
-              </div>
-            )}
+        {/* Photo Information */}
+        <div className="mt-2 text-left">
+          <p className="text-sm text-gray-500">{photo.emotion || "Emotion"}</p>
+          <p className="text-sm text-gray-500">{new Date(photo.created_at).toLocaleDateString()}</p>
+        </div>
+      </div>
+    ))
+  ) : (
+    <div className="col-span-full text-center py-8">
+      <p>No photos yet. Capture some moments with your pet!</p>
+    </div>
+  )}
+</div>
+
+         {/* Videos Section */}
+<h2 className="text-2xl font-bold mt-12 mb-4">Videos</h2>
+<div className="pt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+  {videos.length > 0 ? (
+    videos.map((video) => (
+      <div
+        key={video.id}
+        className="bg-white shadow-lg p-3 rounded cursor-pointer hover:shadow-xl transition-shadow"
+        onClick={() => setSelectedVideo(video)}
+      >
+        {/* Video Thumbnail */}
+        <div className="relative w-full aspect-video bg-gray-200 rounded overflow-hidden">
+          <img
+            src={video.url || VIDEO}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40">
+            <span className="text-white text-4xl">▶</span>
           </div>
+        </div>
 
-          {/* Videos Section */}
-          <h2 className="text-2xl font-bold mt-12 mb-4">Videos</h2>
-          <div className="pt-4 grid grid-cols-2 gap-8">
-            {videos.length > 0 ? (
-              videos.map((video) => (
-                <div
-                  key={video.id}
-                  className={`bg-white shadow-lg p-4 rounded cursor-pointer hover:shadow-xl transition-shadow ${
-                    video.shape === 'rectangle' ? 'col-span-2' : 'col-span-1'
-                  }`}
-                  onClick={() => setSelectedVideo(video)}
-                >
-                  {/* Video Thumbnail */}
-                  <div className="relative w-full h-48 rounded overflow-hidden bg-gray-200">
-                    <img
-                      src={video.url || VIDEO}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40">
-                      <span className="text-white text-4xl">▶</span>
-                    </div>
-                  </div>
-
-                  {/* Video Information */}
-                  <div className="mt-2 text-left">
-                    <p className="text-sm text-gray-500">{new Date(video.created_at).toLocaleDateString()}</p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="col-span-2 text-center py-8">
-                <p>No videos yet. Record some fun moments with your pet!</p>
-              </div>
-            )}
-          </div>
+        {/* Video Information */}
+        <div className="mt-2 text-left">
+          <p className="text-sm text-gray-500">{new Date(video.created_at).toLocaleDateString()}</p>
+        </div>
+      </div>
+    ))
+  ) : (
+    <div className="col-span-full text-center py-8">
+      <p>No videos yet. Record some fun moments with your pet!</p>
+    </div>
+  )}
+</div>
         </>
       )}
 
