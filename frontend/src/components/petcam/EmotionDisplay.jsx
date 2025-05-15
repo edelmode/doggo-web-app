@@ -291,8 +291,11 @@ export default function EmotionDisplay({
     return (
         <div className="mt-10 flex flex-col items-center sm:items-end">
             <div className="font-semibold text-center mt-6 sm:mt-20 mb-5">
+                <div className="min-h-[72px] sm:min-h-0 flex justify-center">
+
                 <div className={`w-60 sm:w-72 md:w-80 text-2xl sm:text-3xl text-white ${emotionColor} focus:outline-none font-bold rounded-lg px-3 py-3 text-center transition-colors duration-300`}>
                     {error ? "Not Available" : displayEmotion}
+                </div>
                 </div>
                 
                 {/* Connection status indicator */}
