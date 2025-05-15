@@ -77,7 +77,7 @@ export default function Navbar() {
             <ManualModal 
                 isOpen={showManual} 
                 onClose={() => setShowManual(false)} 
-                images={manualVideos} 
+                images={videoUrls} 
             />
 
             {isSigningOut && (
