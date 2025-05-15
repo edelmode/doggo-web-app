@@ -69,7 +69,7 @@ export default function Navbar() {
             <ManualModal 
                 isOpen={showManual} 
                 onClose={() => setShowManual(false)} 
-                images={["/DOGGO.png", "/DOGGO2.png", "/DOGGO3.png","/DOGGO4.png","/DOGGO.png"]} 
+                images={["/DOGGO.png", "/DOGGO2.png", "/DOGGO3.png","/DOGGO4.png","/DOGGO5.png"]} 
             />
 
             {isSigningOut && (
