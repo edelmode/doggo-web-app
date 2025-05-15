@@ -13,11 +13,11 @@ export default function Navbar() {
 
     // Tutorial videos for the manual
     const manualVideos = [
-        "/videos/DOGGO.png",
-        "/videos/DOGGO.png",
-        "/videos/DOGGO.png",
-        "/videos/DOGGO.png",
-        "/videos/DOGGO.png",
+        "/images/DOGGO.png",
+        "/images/DOGGO.png",
+        "/images/DOGGO.png",
+        "/images/DOGGO.png",
+        "/images/DOGGO.png",
     ];
 
     const toggleDropdown = () => {
@@ -77,7 +77,7 @@ export default function Navbar() {
             <ManualModal 
                 isOpen={showManual} 
                 onClose={() => setShowManual(false)} 
-                videos={manualVideos} 
+                images={manualVideos} 
             />
 
             {isSigningOut && (
