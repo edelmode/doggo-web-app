@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import PrivacyPolicy from './PrivacyPolicy';
-import { 
-  Facebook, 
-  Instagram, 
-  Twitter, 
+import {  
   ChevronRight, 
   Dog, 
   Mail 

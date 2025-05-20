@@ -131,7 +131,7 @@ const ContactUs = () => {
                             </h3>
                             <p>
                                 <i className="fas fa-phone-alt mr-2"></i>
-                                Phone: +123 456 7890
+                                Phone: 09755131966
                             </p>
                             <p>
                                 <i className="fas fa-envelope mr-2"></i>
@@ -139,7 +139,7 @@ const ContactUs = () => {
                             </p>
                             <p>
                                 <i className="fas fa-map-marker-alt mr-2"></i>
-                                Address: 123 Doggo Lane, Dogtown, DOG
+                                Address: Commonwealth, Quezon City, Philippines
                             </p>
                         </div>
                     </div>
