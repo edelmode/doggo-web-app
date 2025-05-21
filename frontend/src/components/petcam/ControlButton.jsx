@@ -54,7 +54,7 @@ export default function ControlButtons({ loading, error, handleMicToggle }) {
                         className={`text-md font-lg text-white rounded-full px-6 py-3 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
                         isLoading ? 'bg-gray-400' : 
                         motorsRunning ? 'bg-red-600 hover:bg-red-700' : 
-                        'bg-dark-pastel-orange hover:bg-dark-grayish-orange'
+                        'bg-yellow-500 hover:bg-dark-grayish-orange'
                         }`}
                         onClick={runMotors}
                         disabled={isLoading || motorsRunning}
