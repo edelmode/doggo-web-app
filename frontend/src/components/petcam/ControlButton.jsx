@@ -38,7 +38,7 @@ export default function ControlButtons({ loading, error, handleMicToggle }) {
     return (
         <div className="mt-5 text-center">
             
-            <div className="mt-3 flex justify-center items-center flex-wrap gap-3 sm:gap-5">
+            <div className="mt-3 flex flex-col justify-center items-center gap-3 sm:gap-5">
                 {/* Status indicator */}
                 <div className={`text-center py-2 px-4 rounded-lg ${
                 motorsRunning ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -48,28 +48,28 @@ export default function ControlButtons({ loading, error, handleMicToggle }) {
                 </p>
                 </div>
                 
-                {/* Control Button */}
-                <div className="flex flex-row gap-3 w-full">
-                <button 
-                    className={`text-md font-lg text-white rounded-full px-6 py-3 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
-                    isLoading ? 'bg-gray-400' : 
-                    motorsRunning ? 'bg-red-600 hover:bg-red-700' : 
-                    'bg-dark-grayish-orange hover:bg-yellow'
-                    }`}
-                    onClick={runMotors}
-                    disabled={isLoading || motorsRunning}
-                >
-                    {isLoading ? 'Initializing...' : 
-                    motorsRunning ? 'Cooling Down...' : 
-                    'Start Fetching'}
-                </button>
-                <button
-                    onClick={handleMicToggle}
-                    className="bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-3 shadow-lg"
-                    disabled={loading || error}
-                >
-                    <Mic className="w-4 h-4 sm:w-6 sm:h-6" />
-                </button>
+                {/* Control Buttons - Now in the same row */}
+                <div className="flex flex-row items-center justify-center gap-3 w-full">
+                    <button 
+                        className={`text-md font-lg text-white rounded-full px-6 py-3 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
+                        isLoading ? 'bg-gray-400' : 
+                        motorsRunning ? 'bg-red-600 hover:bg-red-700' : 
+                        'bg-dark-pastel-orange hover:bg-dark-grayish-orange'
+                        }`}
+                        onClick={runMotors}
+                        disabled={isLoading || motorsRunning}
+                    >
+                        {isLoading ? 'Initializing...' : 
+                        motorsRunning ? 'Cooling Down...' : 
+                        'Start Fetching'}
+                    </button>
+                    <button
+                        onClick={handleMicToggle}
+                        className="bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-3 shadow-lg"
+                        disabled={loading || error}
+                    >
+                        <Mic className="w-4 h-4 sm:w-6 sm:h-6" />
+                    </button>
                 </div>
             </div>
         </div>
