@@ -37,29 +37,6 @@ export default function ControlButtons({ loading, error, handleMicToggle }) {
     
     return (
         <div className="mt-5 text-center">
-            {/* <div className="mt-3 flex justify-center items-center flex-wrap gap-3 sm:gap-5">
-                <button
-                    onClick={runMotors}
-                    className={`text-white rounded-full px-6 py-3 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
-                        isLoading ? 'bg-gray-400' : 
-                        motorsRunning ? 'bg-red-600 hover:bg-red-700' : 
-                        'bg-dark-grayish-orange hover:bg-yellow'
-                    }`}
-                    disabled={isLoading || motorsRunning || loading || error}
-                >
-                    {isLoading ? 'Processing...' : 
-                    motorsRunning ? 'MOTORS RUNNING...' : 
-                    'Start Fetching'}
-                </button>
-
-                <button
-                    onClick={handleMicToggle}
-                    className="bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-3 shadow-lg"
-                    disabled={loading || error}
-                >
-                    <Mic className="w-4 h-4 sm:w-6 sm:h-6" />
-                </button>
-            </div> */}
             
             <div className="mt-3 flex justify-center items-center flex-wrap gap-3 sm:gap-5">
                 {/* Status indicator */}
@@ -72,7 +49,7 @@ export default function ControlButtons({ loading, error, handleMicToggle }) {
                 </div>
                 
                 {/* Control Button */}
-                <div className="flex flex-col gap-3 w-full">
+                <div className="flex flex-row gap-3 w-full">
                 <button 
                     className={`text-md font-lg text-white rounded-full px-6 py-3 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
                     isLoading ? 'bg-gray-400' : 
@@ -82,9 +59,9 @@ export default function ControlButtons({ loading, error, handleMicToggle }) {
                     onClick={runMotors}
                     disabled={isLoading || motorsRunning}
                 >
-                    {isLoading ? 'Processing...' : 
-                    motorsRunning ? 'MOTORS RUNNING...' : 
-                    'RUN MOTORS'}
+                    {isLoading ? 'Initializing...' : 
+                    motorsRunning ? 'Cooling Down...' : 
+                    'Start Fetching'}
                 </button>
                 <button
                     onClick={handleMicToggle}
