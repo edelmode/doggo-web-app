@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Mic } from 'lucide-react';
 
 export default function ControlButtons({ loading, error, handleMicToggle }) {
     const [motorsRunning, setMotorsRunning] = useState(false);
@@ -43,13 +42,13 @@ export default function ControlButtons({ loading, error, handleMicToggle }) {
                 <div className={`text-center py-2 px-4 rounded-lg ${
                 motorsRunning ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                 }`}>
-                <p className="font-medium">
-                    Motors are {motorsRunning ? 'RUNNING' : 'READY'}
-                </p>
+                    <p className="font-medium">
+                        Motors are {motorsRunning ? 'RUNNING' : 'READY'}
+                    </p>
                 </div>
                 
                 {/* Control Buttons - Now in the same row */}
-                <div className="flex flex-row items-center justify-center gap-3 w-full">
+                <div className="mt-3 flex flex-row items-center justify-center gap-3 w-full">
                     <button 
                         className={`text-md font-lg text-white rounded-full px-6 py-3 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
                         isLoading ? 'bg-gray-400' : 
@@ -62,13 +61,6 @@ export default function ControlButtons({ loading, error, handleMicToggle }) {
                         {isLoading ? 'Initializing...' : 
                         motorsRunning ? 'Cooling Down...' : 
                         'Start Fetching'}
-                    </button>
-                    <button
-                        onClick={handleMicToggle}
-                        className="bg-dark-pastel-orange text-white hover:bg-dark-grayish-orange focus:ring-4 focus:outline-none font-medium rounded-full p-3 shadow-lg"
-                        disabled={loading || error}
-                    >
-                        <Mic className="w-4 h-4 sm:w-6 sm:h-6" />
                     </button>
                 </div>
             </div>
