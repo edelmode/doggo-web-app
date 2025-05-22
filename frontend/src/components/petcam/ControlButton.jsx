@@ -48,7 +48,7 @@ export default function ControlButtons({ loading, error, handleMicToggle }) {
                 </div>
                 
                 {/* Control Buttons - Now in the same row */}
-                <div className="mt-3 flex flex-row items-center justify-center gap-3 w-full">
+                <div className="flex flex-row items-center justify-center gap-3 w-full">
                     <button 
                         className={`text-md font-lg text-white rounded-full px-6 py-3 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
                         isLoading ? 'bg-gray-400' : 
