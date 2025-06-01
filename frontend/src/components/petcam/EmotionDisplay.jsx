@@ -288,8 +288,23 @@ export default function EmotionDisplay({
 
     const emotionColor = socketEmotion ? getEmotionColor(socketEmotion.class) : noDogDetected ? 'bg-gray-500' : getEmotionColor(emotion);
 
+    useEffect(() => {
+        if (socketEmotion?.class?.toLowerCase() === 'anger') {
+            const audio = document.getElementById("alert-sound");
+            if (audio) {
+                audio.play().catch(err => {
+                    console.warn('Autoplay prevented:', err);
+                });
+            }
+            alert("⚠️ Anger emotion detected!");
+        }
+    }, [socketEmotion]);
+
+
     return (
         <div className="mt-10 flex flex-col items-center sm:items-end">
+            <audio id="alert-sound" src="/alert.mp3" preload="auto"></audio>
+
             <div className="font-semibold text-center mt-6 sm:mt-20 mb-5">
                 <div className={`w-60 sm:w-72 md:w-80 text-2xl sm:text-3xl text-white ${emotionColor} focus:outline-none font-bold rounded-lg px-3 py-3 text-center transition-colors duration-300`}>
                     {error ? "Not Available" : displayEmotion}
